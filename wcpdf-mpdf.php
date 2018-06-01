@@ -46,7 +46,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 		}
 
 		$options = array(
-	        'mode'			=> 'utf-8', 
+			'mode'			=> 'utf-8', 
 			'format'		=> $this->settings['paper_size'],
 			'orientation'	=> $orientation,
 			'tempDir'		=> WPO_WCPDF()->main->get_tmp_path('dompdf'),
@@ -69,4 +69,11 @@ add_filter( 'wpo_wcpdf_pdf_maker', 'wpo_wcpdf_pdf_maker_mpdf' );
 function wpo_wcpdf_pdf_maker_mpdf( $class ) {
 	$class = 'WCPDF_Custom_PDF_Maker_mPDF';
 	return $class;
+}
+
+// Add custom templates to settings page listing
+add_filter( 'wpo_wcpdf_template_paths', 'add_templates' );
+function add_templates( $template_paths ) {
+	$template_paths['mpdf_templates'] = plugin_dir_path( __FILE__ ) . 'templates/';
+	return $template_paths;
 }
