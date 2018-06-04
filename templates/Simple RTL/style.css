@@ -72,7 +72,7 @@ table {
 
 th, td {
 	vertical-align: top;
-	text-align: left;
+	text-align: right;
 }
 
 table.container {
@@ -164,7 +164,7 @@ table.order-details {
 .notes-totals th,
 .order-details th {
 	font-weight: bold;
-	text-align: left;
+	text-align: right;
 }
 
 .order-details thead th {
