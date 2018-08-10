@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce PDF Invoices & Packing Slips + mPDF
  * Plugin URI: http://www.wpovernight.com
  * Description: Uses mPDF instead of dompdf for HTML to PDF conversion
- * Version: 1.0.1
+ * Version: 1.0
  * Author: Ewout Fernhout
  * Author URI: http://www.wpovernight.com
  * License: GPLv2 or later
@@ -50,6 +50,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 			'format'		=> $this->settings['paper_size'],
 			'orientation'	=> $orientation,
 			'tempDir'		=> WPO_WCPDF()->main->get_tmp_path('dompdf'),
+			'debug' => true,
 		);
 
 		try {
@@ -58,6 +59,8 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 
 			return $mpdf->Output( null, \Mpdf\Output\Destination::STRING_RETURN);
 		} catch (Exception $e) {
+			$logger = wc_get_logger();
+			$logger->critical( $e->getMessage(), array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
 			return;
 		}
 	}
