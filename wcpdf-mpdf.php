@@ -45,13 +45,13 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 			$orientation = 'P';
 		}
 
-		$options = array(
+		$options = apply_filters( 'wpo_wcpdf_mpdf_options', array(
 			'mode'			=> 'utf-8', 
 			'format'		=> $this->settings['paper_size'],
 			'orientation'	=> $orientation,
 			'tempDir'		=> WPO_WCPDF()->main->get_tmp_path('dompdf'),
-			'debug' => true,
-		);
+			'debug'			=> true,
+		) );
 
 		try {
 			$mpdf = new \Mpdf\Mpdf( $options );
