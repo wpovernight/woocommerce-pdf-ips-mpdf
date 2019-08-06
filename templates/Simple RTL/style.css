@@ -95,8 +95,8 @@ table.head {
 }
 
 td.header img {
-	max-height: 3cm;
-	width: auto;
+	/* img width & heights can only be set with inline styles (mpdf 8.0) https://github.com/mpdf/mpdf/issues/366 */
+	/* using wpo_wcpdf_header_logo_img_element filter instead in wcpdf-mpdf.php */
 }
 
 td.header {

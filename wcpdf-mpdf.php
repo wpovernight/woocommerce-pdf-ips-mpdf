@@ -76,8 +76,16 @@ function wpo_wcpdf_pdf_maker_mpdf( $class ) {
 }
 
 // Add custom templates to settings page listing
-add_filter( 'wpo_wcpdf_template_paths', 'add_templates' );
-function add_templates( $template_paths ) {
+add_filter( 'wpo_wcpdf_template_paths', 'wpo_wcpdf_add_mpdf_templates' );
+function wpo_wcpdf_add_mpdf_templates( $template_paths ) {
 	$template_paths['mpdf_templates'] = plugin_dir_path( __FILE__ ) . 'templates/';
 	return $template_paths;
 }
+
+add_filter( 'wpo_wcpdf_header_logo_img_element', 'wpo_wcpdf_mpdf_set_logo_height', 10, 3 );
+function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) {
+	$style = apply_filters( 'wpo_wcpdf_mpdf_logo_styles', 'max-height: 3cm; width: auto;', $document );
+	$img_element = str_replace('alt=', 'style="'.$style.'" alt=', $img_element);
+	return $img_element;
+}
+
