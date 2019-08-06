@@ -54,6 +54,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 		) );
 
 		try {
+			error_clear_last();
 			$mpdf = new \Mpdf\Mpdf( $options );
 			$mpdf->WriteHTML( $this->html );
 
