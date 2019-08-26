@@ -46,11 +46,12 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 		}
 
 		$options = apply_filters( 'wpo_wcpdf_mpdf_options', array(
-			'mode'			=> 'utf-8', 
-			'format'		=> $this->settings['paper_size'],
-			'orientation'	=> $orientation,
-			'tempDir'		=> WPO_WCPDF()->main->get_tmp_path('dompdf'),
-			'debug'			=> true,
+			'mode'				=> 'utf-8', 
+			'format'			=> $this->settings['paper_size'],
+			'orientation'		=> $orientation,
+			'tempDir'			=> WPO_WCPDF()->main->get_tmp_path('dompdf'),
+			'debug'				=> true,
+			'useSubstitutions'	=> true,
 		) );
 
 		try {
