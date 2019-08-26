@@ -90,3 +90,16 @@ function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) 
 	return $img_element;
 }
 
+add_filter( 'wpo_wcpdf_template_file', 'wpo_wcpdf_mpdf_auto_replace_simple_template_files', 10, 3 );
+function wpo_wcpdf_mpdf_auto_replace_simple_template_files( $file_path, $document_type, $order ) {
+	$file_path = str_replace("\\", "/", $file_path);
+	$simple_path = str_replace("\\", "/", WPO_WCPDF()->plugin_path() . '/templates/Simple/' );
+	if ( strpos( $file_path, $simple_path ) !== false ) {
+		$mpdf_simple_path = plugin_dir_path( __FILE__ ) . 'templates/Simple mpdf/';
+		$mpdf_file_path = str_replace( $simple_path, $mpdf_simple_path, $file_path );
+		if (file_exists($mpdf_file_path)) {
+			$file_path = $mpdf_file_path;
+		}
+	}
+	return $file_path;
+}
