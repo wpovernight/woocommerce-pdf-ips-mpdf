@@ -51,7 +51,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 			'orientation'		=> $orientation,
 			'tempDir'			=> WPO_WCPDF()->main->get_tmp_path('dompdf'),
 			'debug'				=> true,
-			'useSubstitutions'	=> true,
+			'useSubstitutions'	=> file_exists( __DIR__ . '/vendor/mpdf/mpdf/ttfonts/FreeSans.ttf' ),
 		) );
 
 		try {
