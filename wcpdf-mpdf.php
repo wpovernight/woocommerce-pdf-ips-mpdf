@@ -95,6 +95,29 @@ function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) 
 	return $img_element;
 }
 
+add_filter( 'wpo_wcpdf_get_html', 'wpo_wcpdf_remove_image_attributes', 10, 2);
+function wpo_wcpdf_remove_image_attributes( $html, $document ) {
+	if ( !class_exists('DOMDocument') || stripos( $html, "</html>" ) === false ) {
+		return $html;
+	}
+	$dom = new DOMDocument();
+	$dom->loadHTML($html);
+	$tds = $dom->getElementsByTagName("td");
+	foreach ($tds as $td) {
+		if (stripos($td->getAttribute('class'), 'thumbnail') === false) {
+			continue;
+		}
+		$images = $td->getElementsByTagName("img");
+		foreach ($images as $image) {
+			$image->removeAttribute('width');
+			$image->removeAttribute('height');
+			$image->setAttribute('style','width:13mm;height:auto;');
+		}
+	}
+	$html = $dom->saveHTML($dom);
+	return $html;
+}
+
 add_filter( 'wpo_wcpdf_template_file', 'wpo_wcpdf_mpdf_auto_replace_simple_template_files', 10, 3 );
 function wpo_wcpdf_mpdf_auto_replace_simple_template_files( $file_path, $document_type, $order ) {
 	$file_path = str_replace("\\", "/", $file_path);
