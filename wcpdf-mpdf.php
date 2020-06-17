@@ -85,7 +85,12 @@ function wpo_wcpdf_add_mpdf_templates( $template_paths ) {
 
 add_filter( 'wpo_wcpdf_header_logo_img_element', 'wpo_wcpdf_mpdf_set_logo_height', 10, 3 );
 function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) {
-	$style = apply_filters( 'wpo_wcpdf_mpdf_logo_styles', 'max-height: 3cm; width: auto;', $document );
+	$max_height = '3cm';
+	if ( !empty($document) && is_callable(array($document,'get_header_logo_height')) && $header_logo_height = $document->get_header_logo_height() ) {
+		$max_height = $header_logo_height;
+	}
+
+	$style = apply_filters( 'wpo_wcpdf_mpdf_logo_styles', sprintf('max-height: %s; width: auto;', $max_height), $document );
 	$img_element = str_replace('alt=', 'style="'.$style.'" alt=', $img_element);
 	return $img_element;
 }
