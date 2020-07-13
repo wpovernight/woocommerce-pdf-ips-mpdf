@@ -207,15 +207,15 @@ dd:after {
 	white-space: pre;
 }
 /* item-meta formatting for WC3.0+ */
-.wc-item-meta {
+.wc-item-meta, ul.meta {
 	margin: 4px 0;
 	font-size: 7pt;
 	line-height: 7pt;
 }
-.wc-item-meta p {
+.wc-item-meta p, ul.meta p {
 	display: inline;
 }
-.wc-item-meta li {
+.wc-item-meta li, ul.meta li {
 	margin: 0;
 	margin-left: 5px;
 }

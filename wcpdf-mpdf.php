@@ -95,13 +95,14 @@ function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) 
 	return $img_element;
 }
 
-add_filter( 'wpo_wcpdf_get_html', 'wpo_wcpdf_remove_image_attributes', 10, 2);
-function wpo_wcpdf_remove_image_attributes( $html, $document ) {
+add_filter( 'wpo_wcpdf_get_html', 'wpo_wcpdf_modify_html', 10, 2);
+function wpo_wcpdf_modify_html( $html, $document ) {
 	if ( !class_exists('DOMDocument') || stripos( $html, "</html>" ) === false ) {
 		return $html;
 	}
 	$dom = new DOMDocument();
 	$dom->loadHTML($html);
+	// remove image attributes and replace by inline styles
 	$tds = $dom->getElementsByTagName("td");
 	foreach ($tds as $td) {
 		if (stripos($td->getAttribute('class'), 'thumbnail') === false) {
@@ -114,6 +115,16 @@ function wpo_wcpdf_remove_image_attributes( $html, $document ) {
 			$image->setAttribute('style','width:13mm;height:auto;');
 		}
 	}
+
+	// remove p tags from wc-item-meta
+	$ps = $dom->getElementsByTagName("p");
+	foreach ($ps as $p) {
+		if ($p->parentNode->nodeName === 'li' && stripos($p->parentNode->parentNode->getAttribute('class'), 'wc-item-meta') !== false) {
+			$span = $dom->createElement("span", $p->nodeValue);
+			$p->parentNode->replaceChild($span, $p);
+		}
+	}
+
 	$html = $dom->saveHTML($dom);
 	return $html;
 }
