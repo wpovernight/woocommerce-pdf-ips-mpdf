@@ -101,7 +101,12 @@ function wpo_wcpdf_modify_html( $html, $document ) {
 		return $html;
 	}
 	$dom = new DOMDocument();
-	$dom->loadHTML($html);
+	if ( apply_filters( 'wpo_wcpdf_mpdf_domdocument_debug', false ) ) {
+		$dom->loadHTML($html);
+	} else {
+		@$dom->loadHTML($html);
+	}
+
 	// remove image attributes and replace by inline styles
 	$tds = $dom->getElementsByTagName("td");
 	foreach ($tds as $td) {
