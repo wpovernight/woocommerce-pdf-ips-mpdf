@@ -123,7 +123,8 @@ function wpo_wcpdf_modify_html( $html, $document ) {
 
 	// remove p tags from wc-item-meta
 	$ps = $dom->getElementsByTagName("p");
-	foreach ($ps as $p) {
+	for ($i = $ps->length - 1; $i > -1 ; $i--) {
+		$p = $ps->item($i);
 		if ($p->parentNode->nodeName === 'li' && stripos($p->parentNode->parentNode->getAttribute('class'), 'wc-item-meta') !== false) {
 			$span = $dom->createElement("span", $p->nodeValue);
 			$p->parentNode->replaceChild($span, $p);
