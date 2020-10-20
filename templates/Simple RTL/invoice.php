@@ -120,9 +120,18 @@
 	<tbody>
 		<tr class="no-borders">
 			<td class="no-borders" style="width:60%">
+				<?php do_action( 'wpo_wcpdf_before_document_notes', $this->get_type(), $this->order ); ?>
+				<div class="document-notes">
+					<?php if ( $this->get_document_notes() ) : ?>
+						<h3><?php _e( 'Notes', 'woocommerce-pdf-invoices-packing-slips' ); ?></h3>
+						<?php $this->document_notes(); ?>
+					<?php endif; ?>
+				</div>
+				<?php do_action( 'wpo_wcpdf_after_document_notes', $this->get_type(), $this->order ); ?>
+				<br>
 				<?php do_action( 'wpo_wcpdf_before_customer_notes', $this->get_type(), $this->order ); ?>
 				<div class="customer-notes">
-					<?php if ( $this->get_shipping_notes() ) : ?>
+					<?php if ( $this->get_shipping_notes() && $this->settings['display_customer_notes'] ) : ?>
 						<h3><?php _e( 'Customer Notes', 'woocommerce-pdf-invoices-packing-slips' ); ?></h3>
 						<?php $this->shipping_notes(); ?>
 					<?php endif; ?>
