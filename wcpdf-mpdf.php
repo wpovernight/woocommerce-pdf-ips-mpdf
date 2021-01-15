@@ -166,3 +166,12 @@ function wpo_wcpdf_mpdf_premium_style_overrides( $document_type, $document = nul
 	}
 }
 
+// remove from WooCommerce compatibility checklist
+add_filter( 'woocommerce_get_plugins_for_woocommerce', function( $matches, $plugins ) {
+	foreach ( $matches as $basename => $plugin_data ) {
+		if ( $basename == plugin_basename( __FILE__ ) ) {
+			unset( $matches[$basename] );
+		}
+	}
+	return $matches;
+}, 10, 2 );
