@@ -177,8 +177,8 @@ add_filter( 'woocommerce_get_plugins_for_woocommerce', function( $matches, $plug
 }, 10, 2 );
 
 // add RTL support option to general settings
-add_filter( 'wpo_wcpdf_settings_fields_general', 'rtl_support', 10, 4 );
-function rtl_support( $settings_fields, $page, $option_group, $option_name ) {
+add_filter( 'wpo_wcpdf_settings_fields_general', 'wpo_wcpdf_mpdf_rtl_support', 10, 4 );
+function wpo_wcpdf_mpdf_rtl_support( $settings_fields, $page, $option_group, $option_name ) {
 	$settings_fields[] = array(
 		'type'     => 'setting',
 		'id'       => 'rtl_support',
@@ -193,4 +193,17 @@ function rtl_support( $settings_fields, $page, $option_group, $option_name ) {
 	);
 
 	return $settings_fields;
+}
+
+// override templates body class
+add_filter( 'wpo_wcpdf_body_class', 'wpo_wcpdf_mpdf_override_body_class', 10, 2 );
+function wpo_wcpdf_mpdf_override_body_class( $body_class, $document ) {
+	$general_settings = get_option('wpo_wcpdf_settings_general');
+	$body_class      .=' mpdf';
+
+	if( ! empty( $general_settings['rtl_support'] ) ) {
+		$body_class .= ' rtl';
+	}
+
+	return $body_class;
 }
