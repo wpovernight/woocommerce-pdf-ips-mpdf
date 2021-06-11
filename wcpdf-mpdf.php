@@ -195,15 +195,17 @@ function wpo_wcpdf_mpdf_rtl_support( $settings_fields, $page, $option_group, $op
 	return $settings_fields;
 }
 
-// override templates body class
-add_filter( 'wpo_wcpdf_body_class', 'wpo_wcpdf_mpdf_override_body_class', 10, 2 );
-function wpo_wcpdf_mpdf_override_body_class( $body_class, $document ) {
+// adds a container to the html content with .rtl and .mpdf classes
+add_filter( 'wpo_wcpdf_html_content', 'wpo_wcpdf_mpdf_override_body_class', 10, 1 );
+function wpo_wcpdf_mpdf_override_body_class( $content ) {
 	$general_settings = get_option('wpo_wcpdf_settings_general');
-	$body_class      .=' mpdf';
+	$classes          ='container mpdf';
 
 	if( ! empty( $general_settings['rtl_support'] ) ) {
-		$body_class .= ' rtl';
+		$classes .= ' rtl';
 	}
 
-	return $body_class;
+	$content = '<div class="'.$classes.'">'.$content.'</div>';
+
+	return $content;
 }
