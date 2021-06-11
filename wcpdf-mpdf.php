@@ -196,8 +196,8 @@ function wpo_wcpdf_mpdf_rtl_support( $settings_fields, $page, $option_group, $op
 }
 
 // adds a container to the html content with .rtl and .mpdf classes
-add_filter( 'wpo_wcpdf_html_content', 'wpo_wcpdf_mpdf_wrap_content', 10, 1 );
-function wpo_wcpdf_mpdf_wrap_content( $content ) {
+add_filter( 'wpo_wcpdf_html_content', 'wpo_wcpdf_mpdf_wrap_html_content', 10, 1 );
+function wpo_wcpdf_mpdf_wrap_html_content( $content ) {
 	$general_settings = get_option('wpo_wcpdf_settings_general');
 	$classes          ='container mpdf';
 
