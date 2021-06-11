@@ -180,15 +180,15 @@ add_filter( 'woocommerce_get_plugins_for_woocommerce', function( $matches, $plug
 add_filter( 'wpo_wcpdf_settings_fields_general', 'rtl_support', 10, 4 );
 function rtl_support( $settings_fields, $page, $option_group, $option_name ) {
 	$settings_fields[] = array(
-		'type'		=> 'setting',
-		'id'		=> 'rtl_support',
-		'title'		=> __( 'RTL support', 'woocommerce-pdf-invoices-packing-slips' ),
-		'callback'	=> 'checkbox',
-		'section'	=> 'general_settings',
-		'args'		=> array(
-			'option_name'		=> $option_name,
-			'id'				=> 'rtl_support',
-			'description'		=> __( 'Enables RTL support natively for templates.', 'woocommerce-pdf-invoices-packing-slips' ),
+		'type'     => 'setting',
+		'id'       => 'rtl_support',
+		'title'    => __( 'RTL support', 'woocommerce-pdf-invoices-packing-slips' ),
+		'callback' => 'checkbox',
+		'section'  => 'general_settings',
+		'args'     => array(
+			'option_name' => $option_name,
+			'id'          => 'rtl_support',
+			'description' => __( 'Enables RTL support natively for templates.', 'woocommerce-pdf-invoices-packing-slips' ),
 		)
 	);
 
