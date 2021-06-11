@@ -175,3 +175,37 @@ add_filter( 'woocommerce_get_plugins_for_woocommerce', function( $matches, $plug
 	}
 	return $matches;
 }, 10, 2 );
+
+// add RTL support option to general settings
+add_filter( 'wpo_wcpdf_settings_fields_general', 'wpo_wcpdf_mpdf_rtl_support', 10, 4 );
+function wpo_wcpdf_mpdf_rtl_support( $settings_fields, $page, $option_group, $option_name ) {
+	$settings_fields[] = array(
+		'type'     => 'setting',
+		'id'       => 'rtl_support',
+		'title'    => __( 'RTL support', 'woocommerce-pdf-invoices-packing-slips' ),
+		'callback' => 'checkbox',
+		'section'  => 'general_settings',
+		'args'     => array(
+			'option_name' => $option_name,
+			'id'          => 'rtl_support',
+			'description' => __( 'Enables RTL support natively for templates.', 'woocommerce-pdf-invoices-packing-slips' ),
+		)
+	);
+
+	return $settings_fields;
+}
+
+// adds a wrapper div to the html content with .rtl and .mpdf classes
+add_filter( 'wpo_wcpdf_html_content', 'wpo_wcpdf_mpdf_wrap_html_content', 10, 1 );
+function wpo_wcpdf_mpdf_wrap_html_content( $content ) {
+	$general_settings = get_option('wpo_wcpdf_settings_general');
+	$classes          ='mpdf';
+
+	if( ! empty( $general_settings['rtl_support'] ) ) {
+		$classes .= ' rtl';
+	}
+
+	$content = '<div class="'.$classes.'">'.$content.'</div>';
+
+	return $content;
+}
