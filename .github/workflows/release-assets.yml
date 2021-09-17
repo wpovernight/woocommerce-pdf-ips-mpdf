@@ -8,38 +8,41 @@ jobs:
   create-zip:
     runs-on: ubuntu-latest
     steps:
+      - name: Set environment variables
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          # process existing variables
+          PLUGIN_SLUG="${PWD##*/}"
+          VERSION="${TAG_NAME#v}"
+          ZIP_FILE_NAME=$PLUGIN_SLUG.$VERSION.zip
+
+          # set environment variables
+          echo "plugin_slug=$PLUGIN_SLUG" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "zip_file_name_cjk=$PLUGIN_SLUG.$VERSION.CJK.zip" >> $GITHUB_ENV
+          echo "zip_file_name=$PLUGIN_SLUG.$VERSION.zip" >> $GITHUB_ENV
+
       - name: Checkout Git repository
         uses: actions/checkout@v2
         with:
-          ref: master
+          path: ${{ env.plugin_slug }}
 
       - name: Install composer dependencies
         run: |
+          cd ${{ env.plugin_slug }}
           composer install --no-dev
           composer dump-autoload --optimize
 
       - name: Create ZIP
-        env:
-          TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          PLUGIN_SLUG="${PWD##*/}"
-          VERSION="${TAG_NAME//v}"
-          # put the plugin in a folder
-          shopt -s extglob dotglob
-          mkdir $PLUGIN_SLUG
-          mv !($PLUGIN_SLUG) $PLUGIN_SLUG
-          shopt -u dotglob
           # reformat .distignore: remove all empty lines, leading slashes and prefix with the folder
-          sed "/^[[:space:]]*$/d;s#^/##;s#^#$PLUGIN_SLUG/#" $PLUGIN_SLUG/.distignore > .zipignore
-          sed "/^[[:space:]]*$/d;s#^/##;s#^#$PLUGIN_SLUG/#" $PLUGIN_SLUG/.distignore-light > .zipignore-light
+          sed "/^[[:space:]]*$/d;s#^/##;s#^#${{ env.plugin_slug }}/#" ${{ env.plugin_slug }}/.distignore > .zipignore
+          sed "/^[[:space:]]*$/d;s#^/##;s#^#${{ env.plugin_slug }}/#" ${{ env.plugin_slug }}/.distignore-light > .zipignore-light
+          
           # create zip files
-          ZIP_FILE_NAME_CJK=$PLUGIN_SLUG.$VERSION.CJK.zip
-          ZIP_FILE_NAME=$PLUGIN_SLUG.$VERSION.zip
-          zip -rq $ZIP_FILE_NAME_CJK $PLUGIN_SLUG -x@.zipignore
-          zip -rq $ZIP_FILE_NAME $PLUGIN_SLUG -x@.zipignore-light
-          # store file names for next step
-          echo "zip_file_name_cjk=$ZIP_FILE_NAME_CJK" >> $GITHUB_ENV
-          echo "zip_file_name=$ZIP_FILE_NAME" >> $GITHUB_ENV
+          zip -rq ${{ env.zip_file_name }} ${{ env.plugin_slug }} -x@.zipignore-light
+          zip -rq ${{ env.zip_file_name_cjk }} ${{ env.plugin_slug }} -x@.zipignore
 
       - name: Add ZIP to release asseets
         uses: meeDamian/github-release@2.0
