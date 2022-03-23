@@ -11,6 +11,8 @@
  * Text Domain: woocommerce-pdf-invoices-packing-slips
  */
 
+use Symfony\Component\DomCrawler\Crawler;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
@@ -97,43 +99,48 @@ function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) 
 
 add_filter( 'wpo_wcpdf_get_html', 'wpo_wcpdf_modify_html', 10, 2);
 function wpo_wcpdf_modify_html( $html, $document ) {
-	if ( !class_exists('DOMDocument') || stripos( $html, "</html>" ) === false ) {
+	require_once __DIR__ . '/vendor/autoload.php';
+	if ( ! class_exists( 'DOMDocument' ) ) {
 		return $html;
 	}
-	$dom = new DOMDocument();
+
+	$partial_html = stripos( $html, "</html>" ) === false; // for bulk documents
+
 	if ( apply_filters( 'wpo_wcpdf_mpdf_domdocument_debug', false ) ) {
-		$dom->loadHTML($html);
+		$crawler = new Crawler($html);
 	} else {
-		@$dom->loadHTML($html);
+		@$crawler = new Crawler($html);
 	}
 
 	// remove image attributes and replace by inline styles
-	$tds = $dom->getElementsByTagName("td");
-	foreach ($tds as $td) {
-		if (stripos($td->getAttribute('class'), 'thumbnail') === false) {
-			continue;
+	$crawler->filter( 'td.thumbnail img' )->each( function ( Crawler $crawler, $i ) {
+		foreach ( $crawler as $img ) {
+			$img->removeAttribute( 'width' );
+			$img->removeAttribute( 'height' );
+			$img->setAttribute( 'style', 'width:13mm;height:auto;' );
 		}
-		$images = $td->getElementsByTagName("img");
-		foreach ($images as $image) {
-			$image->removeAttribute('width');
-			$image->removeAttribute('height');
-			$image->setAttribute('style','width:13mm;height:auto;');
-		}
-	}
+	} );
 
 	// remove p tags from wc-item-meta
-	$ps = $dom->getElementsByTagName("p");
-	if( ! empty($ps) ) {
-		for ($i = $ps->length - 1; $i > -1 ; $i--) {
-			$p = $ps->item($i);
-			if ($p->parentNode->nodeName === 'li' && stripos($p->parentNode->parentNode->getAttribute('class'), 'wc-item-meta') !== false) {
-				$span = $dom->createElement("span", $p->nodeValue);
-				$p->parentNode->replaceChild($span, $p);
-			}
+	$crawler->filter( '.wc-item-meta li p' )->each( function ( Crawler $crawler, $i ) {
+		foreach ( $crawler as $p ) {
+			$span = $p->ownerDocument->createElement( 'span', $p->nodeValue );
+			$p->parentNode->replaceChild( $span, $p );
 		}
+	} );
+
+	// create html
+	if ( $partial_html ) {
+		// html and body are automatically added when partial HTML is loaded,
+		// but we don't want that in the resulting HTML
+		$html = '';
+		foreach ( $crawler->filter( 'body' )->children() as $domElement ) {
+			$html .= $domElement->ownerDocument->saveHTML( $domElement );
+		}
+	} else {
+		$html = $crawler->html();
 	}
 
-	$html = $dom->saveHTML($dom);
 	return $html;
 }
 
