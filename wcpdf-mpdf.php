@@ -59,9 +59,11 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 		try {
 			error_clear_last();
 			$mpdf = new \Mpdf\Mpdf( $options );
+			$mpdf = apply_filters( 'wpo_wcpdf_before_mpdf_write', $mpdf, $this->html, $options );
 			$mpdf->WriteHTML( $this->html );
-
-			return $mpdf->Output( null, \Mpdf\Output\Destination::STRING_RETURN);
+			$mpdf = apply_filters( 'wpo_wcpdf_after_mpdf_write', $mpdf, $this->html, $options );
+			
+			return $mpdf->Output( null, \Mpdf\Output\Destination::STRING_RETURN );
 		} catch (Exception $e) {
 			$logger = wc_get_logger();
 			$logger->critical( $e->getMessage(), array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
