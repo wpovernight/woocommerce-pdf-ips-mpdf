@@ -20,11 +20,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( !class_exists( 'WCPDF_Custom_PDF_Maker_mPDF' ) ) :
 
 class WCPDF_Custom_PDF_Maker_mPDF {
+	
 	public $html;
 	public $settings;
+	public $document;
 
-	public function __construct( $html, $settings = array() ) {
-		$this->html = $html;
+	public function __construct( $html, $settings = array(), $document = null ) {
+		$this->html     = $html;
+		$this->document = $document;
 
 		$default_settings = array(
 			'paper_size'		=> 'A4',
@@ -59,9 +62,9 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 		try {
 			error_clear_last();
 			$mpdf = new \Mpdf\Mpdf( $options );
-			$mpdf = apply_filters( 'wpo_wcpdf_before_mpdf_write', $mpdf, $this->html, $options );
+			$mpdf = apply_filters( 'wpo_wcpdf_before_mpdf_write', $mpdf, $this->html, $options, $this->document );
 			$mpdf->WriteHTML( $this->html );
-			$mpdf = apply_filters( 'wpo_wcpdf_after_mpdf_write', $mpdf, $this->html, $options );
+			$mpdf = apply_filters( 'wpo_wcpdf_after_mpdf_write', $mpdf, $this->html, $options, $this->document );
 			
 			return $mpdf->Output( null, \Mpdf\Output\Destination::STRING_RETURN );
 		} catch (Exception $e) {
