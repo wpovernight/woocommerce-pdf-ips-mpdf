@@ -1,11 +1,10 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 <?php do_action( 'wpo_wcpdf_before_document', $this->get_type(), $this->order ); ?>
 
-<htmlpageheader name="docHeader">
-	<table class="head container">
-		<tr>
-			<td class="header">
-			<?php
+<table class="head container">
+	<tr>
+		<td class="header">
+		<?php
 			if ( $this->has_header_logo() ) {
 				do_action( 'wpo_wcpdf_before_shop_logo', $this->get_type(), $this->order );
 				$this->header_logo();
@@ -13,21 +12,18 @@
 			} else {
 				echo $this->get_title();
 			}
-			?>
-			</td>
-			<td class="shop-info">
-				<?php do_action( 'wpo_wcpdf_before_shop_name', $this->get_type(), $this->order ); ?>
-				<div class="shop-name"><h3><?php $this->shop_name(); ?></h3></div>
-				<?php do_action( 'wpo_wcpdf_after_shop_name', $this->get_type(), $this->order ); ?>
-				<?php do_action( 'wpo_wcpdf_before_shop_address', $this->get_type(), $this->order ); ?>
-				<div class="shop-address"><?php $this->shop_address(); ?></div>
-				<?php do_action( 'wpo_wcpdf_after_shop_address', $this->get_type(), $this->order ); ?>
-			</td>
-		</tr>
-	</table>
-</htmlpageheader>
-
-<div class="bottom-spacer"></div>
+		?>
+		</td>
+		<td class="shop-info">
+			<?php do_action( 'wpo_wcpdf_before_shop_name', $this->get_type(), $this->order ); ?>
+			<div class="shop-name"><h3><?php $this->shop_name(); ?></h3></div>
+			<?php do_action( 'wpo_wcpdf_after_shop_name', $this->get_type(), $this->order ); ?>
+			<?php do_action( 'wpo_wcpdf_before_shop_address', $this->get_type(), $this->order ); ?>
+			<div class="shop-address"><?php $this->shop_address(); ?></div>
+			<?php do_action( 'wpo_wcpdf_after_shop_address', $this->get_type(), $this->order ); ?>
+		</td>
+	</tr>
+</table>
 
 <?php do_action( 'wpo_wcpdf_before_document_label', $this->get_type(), $this->order ); ?>
 
