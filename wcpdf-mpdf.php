@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if ( !class_exists( 'WCPDF_Custom_PDF_Maker_mPDF' ) ) :
+if ( ! class_exists( 'WCPDF_Custom_PDF_Maker_mPDF' ) ) :
 
 class WCPDF_Custom_PDF_Maker_mPDF {
 	
@@ -62,9 +62,9 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 		try {
 			error_clear_last();
 			$mpdf = new \Mpdf\Mpdf( $options );
-			$mpdf = apply_filters( 'wpo_wcpdf_before_mpdf_write', $mpdf, $this->html, $options, $this->document );
+			$mpdf = apply_filters( 'wpo_wcpdf_before_mpdf_write', $mpdf, $this->html, $options, $this->document, $this );
 			$mpdf->WriteHTML( $this->html );
-			$mpdf = apply_filters( 'wpo_wcpdf_after_mpdf_write', $mpdf, $this->html, $options, $this->document );
+			$mpdf = apply_filters( 'wpo_wcpdf_after_mpdf_write', $mpdf, $this->html, $options, $this->document, $this );
 			
 			return $mpdf->Output( null, \Mpdf\Output\Destination::STRING_RETURN );
 		} catch (Exception $e) {
