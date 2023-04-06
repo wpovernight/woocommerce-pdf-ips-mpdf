@@ -4,6 +4,8 @@
 	margin-bottom: 3cm;
 	margin-left: 2cm;
 	margin-right: 2cm;
+	header: docHeader;
+	footer: docFooter;
 }
 body {
 	direction: rtl;
@@ -87,6 +89,11 @@ td.no-borders {
 	border-bottom: 0 !important;
 	padding: 0 !important;
 	width: auto;
+}
+
+div.bottom-spacer {
+	clear: both;
+	height: 8mm;
 }
 
 /* Header */
