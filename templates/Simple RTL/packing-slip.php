@@ -29,7 +29,11 @@
 <?php do_action( 'wpo_wcpdf_before_document_label', $this->get_type(), $this->order ); ?>
 
 <h1 class="document-type-label">
-	<?php if ( $this->has_header_logo() ) $this->title(); ?>
+	<?php
+		if ( $this->has_header_logo() ) {
+			$this->title();
+		}
+	?>
 </h1>
 
 <?php do_action( 'wpo_wcpdf_after_document_label', $this->get_type(), $this->order ); ?>
