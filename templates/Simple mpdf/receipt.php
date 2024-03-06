@@ -131,7 +131,7 @@
 </table>
 
 <table class="notes-totals" style="width:100%">
-	<tfoot>
+	<tbody>
 		<tr class="no-borders">
 			<td class="no-borders" style="width:60%">
 				<div class="customer-notes">
@@ -156,7 +156,7 @@
 				</table>
 			</td>
 		</tr>
-	</tfoot>
+	</tbody>
 </table>
 
 <?php do_action( 'wpo_wcpdf_after_order_details', $this->get_type(), $this->order ); ?>
