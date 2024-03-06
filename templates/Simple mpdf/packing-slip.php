@@ -6,13 +6,13 @@
 	<tr>
 		<td class="header">
 		<?php
-		if ( $this->has_header_logo() ) {
-			do_action( 'wpo_wcpdf_before_shop_logo', $this->get_type(), $this->order );
-			$this->header_logo();
-			do_action( 'wpo_wcpdf_after_shop_logo', $this->get_type(), $this->order );
-		} else {
-			$this->title();
-		}
+			if ( $this->has_header_logo() ) {
+				do_action( 'wpo_wcpdf_before_shop_logo', $this->get_type(), $this->order );
+				$this->header_logo();
+				do_action( 'wpo_wcpdf_after_shop_logo', $this->get_type(), $this->order );
+			} else {
+				$this->title();
+			}
 		?>
 		</td>
 		<td class="shop-info">
@@ -28,9 +28,9 @@
 
 <?php do_action( 'wpo_wcpdf_before_document_label', $this->get_type(), $this->order ); ?>
 
-<h1 class="document-type-label">
-	<?php if ( $this->has_header_logo() ) $this->title(); ?>
-</h1>
+<?php if ( $this->has_header_logo() ) : ?>
+	<h1 class="document-type-label"><?php $this->title(); ?></h1>
+<?php endif; ?>
 
 <?php do_action( 'wpo_wcpdf_after_document_label', $this->get_type(), $this->order ); ?>
 
@@ -93,7 +93,7 @@
 	</thead>
 	<tbody>
 		<?php foreach ( $this->get_order_items() as $item_id => $item ) : ?>
-		<tr class="<?php echo apply_filters( 'wpo_wcpdf_item_row_class', $item_id, $this->get_type(), $this->order, $item_id ); ?>">
+		<tr class="<?php echo apply_filters( 'wpo_wcpdf_item_row_class', 'item-' . $item_id, esc_attr( $this->get_type() ), $this->order, $item_id ); ?>">
 			<td class="product">
 				<?php $description_label = __( 'Description', 'woocommerce-pdf-invoices-packing-slips' ); // registering alternate label translation ?>
 				<span class="item-name"><?php echo $item['name']; ?></span>
@@ -102,10 +102,10 @@
 				<ul class="meta">
 					<?php $description_label = __( 'SKU', 'woocommerce-pdf-invoices-packing-slips' ); // registering alternate label translation ?>
 					<?php if ( ! empty( $item['sku'] ) ) : ?>
-						<li class="sku"><strong class="sku-label"><?php _e( 'SKU:', 'woocommerce-pdf-invoices-packing-slips' ); ?></strong> <?php echo $item['sku']; ?></li>
+						<li class="sku"><strong class="sku-label"><?php _e( 'SKU:', 'woocommerce-pdf-invoices-packing-slips' ); ?></strong> <?php echo esc_attr( $item['sku'] ); ?></li>
 					<?php endif; ?>
 					<?php if ( ! empty( $item['weight'] ) ) : ?>
-						<li class="weight"><strong class="weight-label"><?php _e( 'Weight:', 'woocommerce-pdf-invoices-packing-slips' ); ?></strong> <?php echo $item['weight']; ?><?php echo get_option( 'woocommerce_weight_unit' ); ?></li>
+						<li class="weight"><strong class="weight-label"><?php _e( 'Weight:', 'woocommerce-pdf-invoices-packing-slips' ); ?></strong> <?php echo esc_attr( $item['weight'] ); ?><?php echo esc_attr( get_option( 'woocommerce_weight_unit' ) ); ?></li>
 					<?php endif; ?>
 				</ul>
 				<?php do_action( 'wpo_wcpdf_after_item_meta', $this->get_type(), $item, $this->order  ); ?>
