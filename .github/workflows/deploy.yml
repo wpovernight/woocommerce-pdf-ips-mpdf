@@ -1,0 +1,19 @@
+name: "WordPress.org SVN deployment"
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy
+        run: chmod +x ./deploy.sh && ./deploy.sh
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}

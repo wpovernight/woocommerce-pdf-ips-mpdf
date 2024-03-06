@@ -1,9 +1,12 @@
-/.wordpress-org/*
-/.git/*
-/.github/*
-/node_modules/*
+/.wordpress-org
+/.git
+/.github
+/node_modules
 
 .distignore
 .distignore*
 .gitignore
 .gitattributes
+deploy.sh
+deploy-dry-run.sh
+patch.sh
