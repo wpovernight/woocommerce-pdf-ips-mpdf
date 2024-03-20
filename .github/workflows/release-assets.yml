@@ -20,7 +20,6 @@ jobs:
           # set environment variables
           echo "plugin_slug=$PLUGIN_SLUG" >> $GITHUB_ENV
           echo "version=$VERSION" >> $GITHUB_ENV
-          echo "zip_file_name_cjk=$PLUGIN_SLUG.$VERSION.CJK.zip" >> $GITHUB_ENV
           echo "zip_file_name=$PLUGIN_SLUG.$VERSION.zip" >> $GITHUB_ENV
 
       - name: Checkout Git repository
@@ -28,28 +27,18 @@ jobs:
         with:
           path: ${{ env.plugin_slug }}
 
-      - name: Install composer dependencies
-        run: |
-          cd ${{ env.plugin_slug }}
-          composer install --no-dev
-          composer dump-autoload --optimize
-
       - name: Create ZIP
         run: |
           # reformat .distignore: remove all empty lines, leading slashes and prefix with the folder
           sed "/^[[:space:]]*$/d;s#^/##;s#^#${{ env.plugin_slug }}/#" ${{ env.plugin_slug }}/.distignore > .zipignore
-          sed "/^[[:space:]]*$/d;s#^/##;s#^#${{ env.plugin_slug }}/#" ${{ env.plugin_slug }}/.distignore-light > .zipignore-light
           
           # create zip files
-          zip -rq ${{ env.zip_file_name }} ${{ env.plugin_slug }} -x@.zipignore-light
-          zip -rq ${{ env.zip_file_name_cjk }} ${{ env.plugin_slug }} -x@.zipignore
+          zip -rq ${{ env.zip_file_name }} ${{ env.plugin_slug }} -x@.zipignore
 
       - name: Add ZIP to release asseets
         uses: meeDamian/github-release@2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: >
-            ${{ env.zip_file_name }}
-            ${{ env.zip_file_name_cjk }}
+          files: ${{ env.zip_file_name }}
           gzip: false
           allow_override: true
