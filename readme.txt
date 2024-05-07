@@ -5,7 +5,7 @@ Tags: woocommerce, mpdf, pdf, rtl
 Requires at least: 4.4
 Tested up to: 6.5
 Requires PHP: 7.2
-Stable tag: 2.5.0
+Stable tag: 2.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,9 @@ This project is hosted on github: https://github.com/wpovernight/woocommerce-pdf
 If you want to contribute to the code, feel free to submit a PR. You can also open issues on Github, although we encourage you to open a ticket in the support forum here on WordPress.org first if you're not absolutely sure something is a bug.
 
 == Changelog ==
+
+= 2.5.1 =
+* New: bumps mPDF version to 8.2.3
 
 = 2.5.0 =
 * New: adds missing document template files for: proforma, credit-note and receipt
