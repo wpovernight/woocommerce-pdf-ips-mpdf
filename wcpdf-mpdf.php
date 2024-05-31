@@ -83,13 +83,6 @@ function wpo_wcpdf_pdf_maker_mpdf( $class ) {
 	return $class;
 }
 
-// Add custom templates to settings page listing
-add_filter( 'wpo_wcpdf_template_paths', 'wpo_wcpdf_add_mpdf_templates' );
-function wpo_wcpdf_add_mpdf_templates( $template_paths ) {
-	$template_paths['mpdf_templates'] = plugin_dir_path( __FILE__ ) . 'templates/';
-	return $template_paths;
-}
-
 add_filter( 'wpo_wcpdf_header_logo_img_element', 'wpo_wcpdf_mpdf_set_logo_height', 10, 3 );
 function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) {
 	$max_height = '3cm';
@@ -155,22 +148,6 @@ function wpo_wcpdf_modify_html( $html, $document ) {
 	return $html;
 }
 
-add_filter( 'wpo_wcpdf_template_file', 'wpo_wcpdf_mpdf_auto_replace_simple_template_files', 10, 3 );
-function wpo_wcpdf_mpdf_auto_replace_simple_template_files( $file_path, $document_type, $order ) {
-	$file_path   = str_replace( "\\", "/", $file_path );
-	$simple_path = str_replace( "\\", "/", WPO_WCPDF()->plugin_path() . '/templates/Simple/' );
-	
-	if ( false !== strpos( $file_path, $simple_path ) ) {
-		$mpdf_simple_path = plugin_dir_path( __FILE__ ) . 'templates/Simple mpdf/';
-		$mpdf_file_path   = str_replace( $simple_path, $mpdf_simple_path, $file_path );
-		
-		if ( file_exists( $mpdf_file_path ) ) {
-			$file_path = $mpdf_file_path;
-		}
-	}
-	return $file_path;
-}
-
 add_action( 'wpo_wcpdf_custom_styles', 'wpo_wcpdf_mpdf_premium_style_overrides', 10, 2 );
 function wpo_wcpdf_mpdf_premium_style_overrides( $document_type, $document = null ) {
 	if ( defined( 'WPO_WCPDF_TEMPLATES_VERSION' ) && version_compare( WPO_WCPDF_TEMPLATES_VERSION, '2.4', '>' ) ) {
@@ -183,6 +160,23 @@ function wpo_wcpdf_mpdf_premium_style_overrides( $document_type, $document = nul
 		
 		if ( array_key_exists( $template_name, $margins ) ) {
 			printf( "\n#footer, .foot { bottom: %s; left: %s; right: %s; }\n", $margins[$template_name][0], $margins[$template_name][1], $margins[$template_name][2] );
+		} else {
+			// Simple template
+			// Replaces the default footer styles from Dompdf, partial replacements are not possible
+			?>
+			/* mPDF Footer */
+			#footer {
+				position: absolute;
+				bottom: 0;
+				left: 2cm;
+				right: 2cm;
+				height: 2cm; /* if you change the footer height, don't forget to change the bottom (=negative height) and the @page margin-bottom as well! */
+				text-align: center;
+				border-top: 0.1mm solid gray;
+				margin-bottom: 0;
+				padding-top: 2mm;
+			}
+			<?php
 		}
 	}
 }
