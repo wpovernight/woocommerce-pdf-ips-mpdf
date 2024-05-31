@@ -166,15 +166,9 @@ function wpo_wcpdf_mpdf_premium_style_overrides( $document_type, $document = nul
 			?>
 			/* mPDF Footer */
 			#footer {
-				position: absolute;
 				bottom: 0;
 				left: 2cm;
 				right: 2cm;
-				height: 2cm; /* if you change the footer height, don't forget to change the bottom (=negative height) and the @page margin-bottom as well! */
-				text-align: center;
-				border-top: 0.1mm solid gray;
-				margin-bottom: 0;
-				padding-top: 2mm;
 			}
 			<?php
 		}
