@@ -100,8 +100,8 @@ function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) 
 	return $img_element;
 }
 
-add_filter( 'wpo_wcpdf_get_html', 'wpo_wcpdf_modify_html', 10, 2);
-function wpo_wcpdf_modify_html( $html, $document ) {
+add_filter( 'wpo_wcpdf_get_html', 'wpo_wcpdf_mpdf_modify_html', 10, 2 );
+function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 	
 	if ( ! class_exists( 'DOMDocument' ) ) {
@@ -125,11 +125,39 @@ function wpo_wcpdf_modify_html( $html, $document ) {
 		}
 	} );
 
-	// remove p tags from wc-item-meta
-	$crawler->filter( '.wc-item-meta li p' )->each( function ( Crawler $crawler, $i ) {
+	// replace strong tags with span tags and add class 'label'
+	$crawler->filter( '.wc-item-meta strong' )->each( function ( Crawler $crawler, $i ) {
+		foreach ( $crawler as $strong ) {
+			$span = $strong->ownerDocument->createElement( 'span', $strong->nodeValue );
+			$span->setAttribute( 'class', 'label' );
+			$strong->parentNode->replaceChild( $span, $strong );
+		}
+	} );
+
+	// remove p tags but keep the content inside
+	$crawler->filter( '.wc-item-meta p' )->each( function ( Crawler $crawler, $i ) {
 		foreach ( $crawler as $p ) {
-			$span = $p->ownerDocument->createElement( 'span', $p->nodeValue );
-			$p->parentNode->replaceChild( $span, $p );
+			while ( $p->firstChild ) {
+				$p->parentNode->insertBefore( $p->firstChild, $p );
+			}
+			$p->parentNode->removeChild( $p );
+		}
+	} );
+
+	// replace ul.wc-item-meta with div and wrap each li content in a p
+	$crawler->filter( 'ul.wc-item-meta' )->each( function ( Crawler $crawler, $i ) {
+		foreach ( $crawler as $ul ) {
+			$div = $ul->ownerDocument->createElement( 'div' );
+			$div->setAttribute( 'class', 'wc-item-meta' );
+			
+			foreach ( $ul->getElementsByTagName( 'li' ) as $li ) {
+				$p = $ul->ownerDocument->createElement( 'p' );
+				while ( $li->firstChild ) {
+					$p->appendChild( $li->firstChild );
+				}
+				$div->appendChild( $p );
+			}
+			$ul->parentNode->replaceChild( $div, $ul );
 		}
 	} );
 
