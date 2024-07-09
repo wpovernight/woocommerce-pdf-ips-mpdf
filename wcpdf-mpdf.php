@@ -1,14 +1,15 @@
 <?php
 /**
- * Plugin Name: PDF Invoices & Packing Slips for WooCommerce - mPDF
- * Plugin URI:  https://github.com/wpovernight/woocommerce-pdf-ips-mpdf/
- * Description: Uses mPDF instead of dompdf for HTML to PDF conversion
- * Version:     2.5.1
- * Author:      WP Overnight
- * Author URI:  https://www.wpovernight.com
- * License:     GPLv2 or later
- * License URI: https://opensource.org/licenses/gpl-license.php
- * Text Domain: woocommerce-pdf-invoices-packing-slips
+ * Plugin Name:      PDF Invoices & Packing Slips for WooCommerce - mPDF
+ * Requires Plugins: woocommerce-pdf-invoices-packing-slips
+ * Plugin URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf/
+ * Description:      Uses mPDF instead of dompdf for HTML to PDF conversion
+ * Version:          2.5.1
+ * Author:           WP Overnight
+ * Author URI:       https://www.wpovernight.com
+ * License:          GPLv2 or later
+ * License URI:      https://opensource.org/licenses/gpl-license.php
+ * Text Domain:      woocommerce-pdf-invoices-packing-slips
  */
 
 use Symfony\Component\DomCrawler\Crawler;
@@ -93,8 +94,7 @@ function wpo_wcpdf_mpdf_check_dependencies(): bool {
 	$core_plugin_min_version = '3.8.4';
 
 	if (
-		! in_array( $core_plugin_slug, $activated_plugins ) ||
-		! array_key_exists( $core_plugin_slug, $activated_plugins ) ||
+		! ( in_array( $core_plugin_slug, $activated_plugins ) || array_key_exists( $core_plugin_slug, $activated_plugins ) ) ||
 		! defined( 'WPO_WCPDF_VERSION' ) ||
 		version_compare( WPO_WCPDF_VERSION, $core_plugin_min_version, '<' )
 	) {
