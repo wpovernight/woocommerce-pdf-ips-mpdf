@@ -28,12 +28,6 @@ jobs:
         with:
           path: ${{ env.plugin_slug }}
 
-      - name: Install composer dependencies
-        run: |
-          cd ${{ env.plugin_slug }}
-          composer install --no-dev
-          composer dump-autoload --optimize
-
       - name: Create ZIP
         run: |
           # reformat .distignore: remove all empty lines, leading slashes and prefix with the folder
