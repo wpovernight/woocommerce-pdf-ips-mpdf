@@ -3,7 +3,7 @@
  * Plugin Name:      PDF Invoices & Packing Slips for WooCommerce - mPDF
  * Requires Plugins: woocommerce-pdf-invoices-packing-slips
  * Plugin URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf/
- * Description:      Uses mPDF instead of dompdf for HTML to PDF conversion
+ * Description:      Utilizes the mPDF engine as an alternative for converting HTML to PDF.
  * Version:          2.5.1
  * Author:           WP Overnight
  * Author URI:       https://www.wpovernight.com
@@ -106,13 +106,14 @@ function wpo_wcpdf_mpdf_check_dependencies(): bool {
 }
 
 function wpo_wcpdf_mpdf_notice_core_plugin_requirement(): void {
-	/* translators: 1. Plugin name, 2: Core plugin version, 3: Core plugin name, 4: Opening anchor tag, 5: Closing anchor tag */
 	$error_message = sprintf(
+		/* translators: 1. Plugin name, 2: Core plugin version, 3: Core plugin name */
 		__( '%1$s requires at least version %2$s of %3$s to be installed and activated.', 'woocommerce-pdf-invoices-packing-slips' ),
 		'<strong>PDF Invoices & Packing Slips for WooCommerce - mPDF</strong>',
 		'<strong>3.8.4</strong>',
 		'<a href="https://wordpress.org/plugins/woocommerce-pdf-invoices-packing-slips/">PDF Invoices & Packing Slips for WooCommerce</a>'
 	);
+
 	printf( '<div class="notice notice-error"><p>%s</p></div>', $error_message );
 }
 
