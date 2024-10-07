@@ -91,7 +91,7 @@ add_action( 'admin_init', 'wpo_wcpdf_mpdf_check_dependencies' );
 function wpo_wcpdf_mpdf_check_dependencies(): bool {
 	$activated_plugins       = array_merge( get_option( 'active_plugins', array() ), get_site_option( 'active_sitewide_plugins', array() ) );
 	$core_plugin_slug        = 'woocommerce-pdf-invoices-packing-slips/woocommerce-pdf-invoices-packingslips.php';
-	$core_plugin_min_version = '3.8.4';
+	$core_plugin_min_version = '3.8.7';
 
 	if (
 		! ( in_array( $core_plugin_slug, $activated_plugins ) || array_key_exists( $core_plugin_slug, $activated_plugins ) ) ||
