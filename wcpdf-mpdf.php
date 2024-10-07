@@ -212,18 +212,16 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 
 add_action( 'wpo_wcpdf_custom_styles', 'wpo_wcpdf_mpdf_premium_style_overrides', 10, 2 );
 function wpo_wcpdf_mpdf_premium_style_overrides( $document_type, $document = null ) {
-	if ( defined( 'WPO_WCPDF_TEMPLATES_VERSION' ) && version_compare( WPO_WCPDF_TEMPLATES_VERSION, '2.4', '>' ) ) {
-		$template_name = basename( WPO_WCPDF()->settings->get_template_path() );
-		$margins       = array(
-			'Simple'         => array( '0','20mm','20mm' ), // bottom, left, right
-			'Business'       => array( '10mm','10mm','10mm' ),
-			'Modern'         => array( '10mm','10mm','10mm' ),
-			'Simple Premium' => array( '10mm','20mm','20mm' ),
-		);
-		
-		if ( array_key_exists( $template_name, $margins ) ) {
-			printf( "\n#footer, .foot { bottom: %s; left: %s; right: %s; }\n", $margins[ $template_name ][0], $margins[ $template_name ][1], $margins[ $template_name ][2] );
-		}
+	$template_name = basename( WPO_WCPDF()->settings->get_template_path() );
+	$margins       = array(
+		'Simple'         => array( '0','20mm','20mm' ), // bottom, left, right
+		'Business'       => array( '10mm','10mm','10mm' ),
+		'Modern'         => array( '10mm','10mm','10mm' ),
+		'Simple Premium' => array( '10mm','20mm','20mm' ),
+	);
+	
+	if ( array_key_exists( $template_name, $margins ) ) {
+		printf( "\n#footer, .foot { bottom: %s; left: %s; right: %s; }\n", $margins[ $template_name ][0], $margins[ $template_name ][1], $margins[ $template_name ][2] );
 	}
 }
 
