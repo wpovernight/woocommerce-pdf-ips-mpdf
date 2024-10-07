@@ -1,14 +1,15 @@
 <?php
 /**
- * Plugin Name: PDF Invoices & Packing Slips for WooCommerce - mPDF
- * Plugin URI:  https://github.com/wpovernight/woocommerce-pdf-ips-mpdf/
- * Description: Uses mPDF instead of dompdf for HTML to PDF conversion
- * Version:     2.5.1
- * Author:      WP Overnight
- * Author URI:  https://www.wpovernight.com
- * License:     GPLv2 or later
- * License URI: https://opensource.org/licenses/gpl-license.php
- * Text Domain: woocommerce-pdf-invoices-packing-slips
+ * Plugin Name:      PDF Invoices & Packing Slips for WooCommerce - mPDF
+ * Requires Plugins: woocommerce-pdf-invoices-packing-slips
+ * Plugin URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf/
+ * Description:      Utilizes the mPDF engine as an alternative for converting HTML to PDF.
+ * Version:          2.5.2
+ * Author:           WP Overnight
+ * Author URI:       https://www.wpovernight.com
+ * License:          GPLv2 or later
+ * License URI:      https://opensource.org/licenses/gpl-license.php
+ * Text Domain:      woocommerce-pdf-invoices-packing-slips
  */
 
 use Symfony\Component\DomCrawler\Crawler;
@@ -78,9 +79,42 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 endif; // class_exists
 
 add_filter( 'wpo_wcpdf_pdf_maker', 'wpo_wcpdf_pdf_maker_mpdf' );
-function wpo_wcpdf_pdf_maker_mpdf( $class ) {
-	$class = 'WCPDF_Custom_PDF_Maker_mPDF';
-	return $class;
+function wpo_wcpdf_pdf_maker_mpdf( string $class ): string {
+	if ( ! wpo_wcpdf_mpdf_check_dependencies() ) {
+		return $class;
+	}
+
+	return 'WCPDF_Custom_PDF_Maker_mPDF';
+}
+
+add_action( 'admin_init', 'wpo_wcpdf_mpdf_check_dependencies' );
+function wpo_wcpdf_mpdf_check_dependencies(): bool {
+	$activated_plugins       = array_merge( get_option( 'active_plugins', array() ), get_site_option( 'active_sitewide_plugins', array() ) );
+	$core_plugin_slug        = 'woocommerce-pdf-invoices-packing-slips/woocommerce-pdf-invoices-packingslips.php';
+	$core_plugin_min_version = '3.8.4';
+
+	if (
+		! ( in_array( $core_plugin_slug, $activated_plugins ) || array_key_exists( $core_plugin_slug, $activated_plugins ) ) ||
+		! defined( 'WPO_WCPDF_VERSION' ) ||
+		version_compare( WPO_WCPDF_VERSION, $core_plugin_min_version, '<' )
+	) {
+		add_action( 'admin_notices', 'wpo_wcpdf_mpdf_notice_core_plugin_requirement' );
+		return false;
+	}
+
+	return true;
+}
+
+function wpo_wcpdf_mpdf_notice_core_plugin_requirement(): void {
+	$error_message = sprintf(
+		/* translators: 1. Plugin name, 2: Core plugin version, 3: Core plugin name */
+		__( '%1$s requires at least version %2$s of %3$s to be installed and activated.', 'woocommerce-pdf-invoices-packing-slips' ),
+		'<strong>PDF Invoices & Packing Slips for WooCommerce - mPDF</strong>',
+		'<strong>3.8.4</strong>',
+		'<a href="https://wordpress.org/plugins/woocommerce-pdf-invoices-packing-slips/">PDF Invoices & Packing Slips for WooCommerce</a>'
+	);
+
+	printf( '<div class="notice notice-error"><p>%s</p></div>', $error_message );
 }
 
 add_filter( 'wpo_wcpdf_header_logo_img_element', 'wpo_wcpdf_mpdf_set_logo_height', 10, 3 );
