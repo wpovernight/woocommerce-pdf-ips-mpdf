@@ -194,8 +194,7 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 	
 			foreach ( $liElements as $li ) {
 				$p = $ul->ownerDocument->createElement( 'p' );
-	
-				// Collect child nodes of <li> into an array
+				
 				foreach ( $li->childNodes as $child ) {
 					// Replace <strong> with <span class="label">
 					if ( $child->nodeType === XML_ELEMENT_NODE && 'strong' === strtolower( $child->nodeName ) ) {
