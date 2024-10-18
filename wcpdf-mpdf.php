@@ -196,12 +196,7 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 				$p = $ul->ownerDocument->createElement( 'p' );
 	
 				// Collect child nodes of <li> into an array
-				$childNodes = array();
 				foreach ( $li->childNodes as $child ) {
-					$childNodes[] = $child;
-				}
-	
-				foreach ( $childNodes as $child ) {
 					// Replace <strong> with <span class="label">
 					if ( $child->nodeType === XML_ELEMENT_NODE && 'strong' === strtolower( $child->nodeName ) ) {
 						$span = $ul->ownerDocument->createElement( 'span', $child->textContent );
@@ -215,11 +210,7 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 							$p->appendChild( $importedNode );
 						}
 					}
-					// Append text nodes (e.g., whitespace or text)
-					elseif ( $child->nodeType === XML_TEXT_NODE ) {
-						$p->appendChild( $ul->ownerDocument->createTextNode( $child->nodeValue ) );
-					}
-					// Handle other nodes if necessary
+					// Handle all other nodes (including text nodes)
 					else {
 						$importedNode = $ul->ownerDocument->importNode( $child, true );
 						$p->appendChild( $importedNode );
