@@ -183,14 +183,54 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 		foreach ( $crawler as $ul ) {
 			$div = $ul->ownerDocument->createElement( 'div' );
 			$div->setAttribute( 'class', 'wc-item-meta' );
-			
-			foreach ( $ul->getElementsByTagName( 'li' ) as $li ) {
-				$p = $ul->ownerDocument->createElement( 'p' );
-				while ( $li->firstChild ) {
-					$p->appendChild( $li->firstChild );
+	
+			// Collect <li> elements into an array
+			$liElements = array();
+			foreach ( $ul->childNodes as $li ) {
+				if ( $li->nodeType === XML_ELEMENT_NODE && 'li' === strtolower( $li->nodeName ) ) {
+					$liElements[] = $li;
 				}
+			}
+	
+			foreach ( $liElements as $li ) {
+				$p = $ul->ownerDocument->createElement( 'p' );
+	
+				// Collect child nodes of <li> into an array
+				$childNodes = array();
+				foreach ( $li->childNodes as $child ) {
+					$childNodes[] = $child;
+				}
+	
+				foreach ( $childNodes as $child ) {
+					// Replace <strong> with <span class="label">
+					if ( $child->nodeType === XML_ELEMENT_NODE && 'strong' === strtolower( $child->nodeName ) ) {
+						$span = $ul->ownerDocument->createElement( 'span', $child->textContent );
+						$span->setAttribute( 'class', 'label' );
+						$p->appendChild( $span );
+					}
+					// Append content of <dd> or <p> to the <p> element
+					elseif ( $child->nodeType === XML_ELEMENT_NODE && in_array( strtolower( $child->nodeName ), array( 'dd', 'p' ) ) ) {
+						foreach ( $child->childNodes as $grandchild ) {
+							$importedNode = $ul->ownerDocument->importNode( $grandchild, true );
+							$p->appendChild( $importedNode );
+						}
+					}
+					// Append text nodes (e.g., whitespace or text)
+					elseif ( $child->nodeType === XML_TEXT_NODE ) {
+						$p->appendChild( $ul->ownerDocument->createTextNode( $child->nodeValue ) );
+					}
+					// Handle other nodes if necessary
+					else {
+						$importedNode = $ul->ownerDocument->importNode( $child, true );
+						$p->appendChild( $importedNode );
+					}
+				}
+	
+				// Append the <p> to the <div>
 				$div->appendChild( $p );
 			}
+	
+			// Replace the <ul> with the new <div>
 			$ul->parentNode->replaceChild( $div, $ul );
 		}
 	} );
