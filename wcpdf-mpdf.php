@@ -183,41 +183,35 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 		foreach ( $crawler as $ul ) {
 			$div = $ul->ownerDocument->createElement( 'div' );
 			$div->setAttribute( 'class', 'wc-item-meta' );
-	
-			// Collect <li> elements into an array
-			$liElements = array();
+			
 			foreach ( $ul->childNodes as $li ) {
 				if ( $li->nodeType === XML_ELEMENT_NODE && 'li' === strtolower( $li->nodeName ) ) {
-					$liElements[] = $li;
-				}
-			}
-	
-			foreach ( $liElements as $li ) {
-				$p = $ul->ownerDocument->createElement( 'p' );
+					$p = $ul->ownerDocument->createElement( 'p' );
 				
-				foreach ( $li->childNodes as $child ) {
-					// Replace <strong> with <span class="label">
-					if ( $child->nodeType === XML_ELEMENT_NODE && 'strong' === strtolower( $child->nodeName ) ) {
-						$span = $ul->ownerDocument->createElement( 'span', $child->textContent );
-						$span->setAttribute( 'class', 'label' );
-						$p->appendChild( $span );
-					}
-					// Append content of <dd> or <p> to the <p> element
-					elseif ( $child->nodeType === XML_ELEMENT_NODE && in_array( strtolower( $child->nodeName ), array( 'dd', 'p' ) ) ) {
-						foreach ( $child->childNodes as $grandchild ) {
-							$importedNode = $ul->ownerDocument->importNode( $grandchild, true );
+					foreach ( $li->childNodes as $child ) {
+						// Replace <strong> with <span class="label">
+						if ( $child->nodeType === XML_ELEMENT_NODE && 'strong' === strtolower( $child->nodeName ) ) {
+							$span = $ul->ownerDocument->createElement( 'span', $child->textContent );
+							$span->setAttribute( 'class', 'label' );
+							$p->appendChild( $span );
+						}
+						// Append content of <dd> or <p> to the <p> element
+						elseif ( $child->nodeType === XML_ELEMENT_NODE && in_array( strtolower( $child->nodeName ), array( 'dd', 'p' ) ) ) {
+							foreach ( $child->childNodes as $grandchild ) {
+								$importedNode = $ul->ownerDocument->importNode( $grandchild, true );
+								$p->appendChild( $importedNode );
+							}
+						}
+						// Handle all other nodes (including text nodes)
+						else {
+							$importedNode = $ul->ownerDocument->importNode( $child, true );
 							$p->appendChild( $importedNode );
 						}
 					}
-					// Handle all other nodes (including text nodes)
-					else {
-						$importedNode = $ul->ownerDocument->importNode( $child, true );
-						$p->appendChild( $importedNode );
-					}
+		
+					// Append the <p> to the <div>
+					$div->appendChild( $p );
 				}
-	
-				// Append the <p> to the <div>
-				$div->appendChild( $p );
 			}
 	
 			// Replace the <ul> with the new <div>
