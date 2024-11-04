@@ -29,10 +29,8 @@ svn status | grep '^[!?]' | while IFS= read -r line; do
     status="${line:0:1}"
     file="${line:8}"
     if [ "$status" = "!" ]; then
-        echo "Deleting: $file"
         svn delete "$file"
     elif [ "$status" = "?" ]; then
-        echo "Adding: $file"
         svn add "$file"
     fi
 done
