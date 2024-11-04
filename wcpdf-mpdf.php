@@ -187,7 +187,7 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 			foreach ( $ul->childNodes as $li ) {
 				if ( $li->nodeType === XML_ELEMENT_NODE && 'li' === strtolower( $li->nodeName ) ) {
 					$p = $ul->ownerDocument->createElement( 'p' );
-				
+					
 					foreach ( $li->childNodes as $child ) {
 						// Replace <strong> with <span class="label">
 						if ( $child->nodeType === XML_ELEMENT_NODE && 'strong' === strtolower( $child->nodeName ) ) {
@@ -195,25 +195,27 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 							$span->setAttribute( 'class', 'label' );
 							$p->appendChild( $span );
 						}
+						
 						// Append content of <dd> or <p> to the <p> element
 						elseif ( $child->nodeType === XML_ELEMENT_NODE && in_array( strtolower( $child->nodeName ), array( 'dd', 'p' ) ) ) {
 							foreach ( $child->childNodes as $grandchild ) {
-								$importedNode = $ul->ownerDocument->importNode( $grandchild, true );
-								$p->appendChild( $importedNode );
+								$clonedNode = $grandchild->cloneNode( true );
+								$p->appendChild( $clonedNode );
 							}
 						}
+						
 						// Handle all other nodes (including text nodes)
 						else {
-							$importedNode = $ul->ownerDocument->importNode( $child, true );
-							$p->appendChild( $importedNode );
+							$clonedNode = $child->cloneNode( true );
+							$p->appendChild( $clonedNode );
 						}
 					}
-		
+					
 					// Append the <p> to the <div>
 					$div->appendChild( $p );
 				}
 			}
-	
+			
 			// Replace the <ul> with the new <div>
 			$ul->parentNode->replaceChild( $div, $ul );
 		}
