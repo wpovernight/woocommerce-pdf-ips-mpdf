@@ -41,10 +41,6 @@ done
 echo "➤ Preparing files..."
 svn add --force trunk > /dev/null
 
-# SVN delete all deleted files
-# Also suppress stdout here
-svn status | grep '^\!' | sed 's/! *//' | xargs -I% svn rm %@ > /dev/null
-
 # Copy tag locally to make this a single commit
 echo "➤ Copying tag..."
 svn cp "trunk" "tags/$VERSION"
