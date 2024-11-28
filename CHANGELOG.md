@@ -1,5 +1,9 @@
 # Changelog
 
+### v2.5.4
+
+- New: Adds Github updater
+
 ### v2.5.3
 
 - New: Removes templates, support should be given by the core templates
