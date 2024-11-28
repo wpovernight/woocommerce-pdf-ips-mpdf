@@ -1,0 +1,3 @@
+[submodule "github-updater"]
+	path = github-updater
+	url = https://github.com/wpovernight/github-updater.git

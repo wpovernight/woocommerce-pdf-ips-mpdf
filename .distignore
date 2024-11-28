@@ -7,7 +7,11 @@
 .distignore*
 .gitignore
 .gitattributes
+.gitmodules
 
 deploy.sh
 deploy-dry-run.sh
 patch.sh
+
+composer.json
+composer.lock

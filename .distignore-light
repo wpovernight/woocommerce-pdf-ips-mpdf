@@ -7,6 +7,14 @@
 .distignore*
 .gitignore
 .gitattributes
+.gitmodules
+
+deploy.sh
+deploy-dry-run.sh
+patch.sh
+
+composer.json
+composer.lock
 
 /vendor/mpdf/mpdf/ttfonts/AboriginalSansREGULAR.ttf
 /vendor/mpdf/mpdf/ttfonts/Abyssinica_SIL.ttf
