@@ -2,7 +2,7 @@
 
 ### v2.5.4
 
-- New: Adds Github updater
+- New: Added GitHub updater (CJK version not supported).
 
 ### v2.5.3
 

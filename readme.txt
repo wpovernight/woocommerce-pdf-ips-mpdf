@@ -26,3 +26,7 @@ Please post a message to our [support forum](https://wordpress.org/support/plugi
 
 This project is hosted on github: https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
 If you want to contribute to the code, feel free to submit a PR. You can also open issues on Github, although we encourage you to open a ticket in the support forum here on WordPress.org first if you're not absolutely sure something is a bug.
+
+= Can I update the CJK version using the built-in updater? =
+
+No, the built-in GitHub updater only supports the standard version. To update the CJK version, please download the latest release manually from the [plugin's releases](https://github.com/wpovernight/woocommerce-pdf-ips-mpdf/releases/).
