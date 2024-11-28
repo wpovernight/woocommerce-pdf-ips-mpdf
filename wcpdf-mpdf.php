@@ -2,9 +2,10 @@
 /**
  * Plugin Name:      PDF Invoices & Packing Slips for WooCommerce - mPDF
  * Requires Plugins: woocommerce-pdf-invoices-packing-slips
- * Plugin URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf/
+ * Plugin URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
  * Description:      Utilizes the mPDF engine as an alternative for converting HTML to PDF.
  * Version:          2.5.3
+ * Update URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
  * Author:           WP Overnight
  * Author URI:       https://www.wpovernight.com
  * License:          GPLv2 or later
@@ -16,6 +17,21 @@ use Symfony\Component\DomCrawler\Crawler;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
+}
+
+$plugin_path           = plugin_dir_path( __FILE__ );
+$plugin_directory_name = basename( $plugin_path );
+$plugin_file           = $plugin_directory_name . '/wcpdf-mpdf.php';
+$github_updater_file   = $plugin_path . 'github-updater/GitHubUpdater.php';
+
+if ( ! class_exists( '\\WPO\\GitHubUpdater\\GitHubUpdater' ) && file_exists( $github_updater_file ) ) {
+	require_once $github_updater_file;
+}
+
+if ( class_exists( '\\WPO\\GitHubUpdater\\GitHubUpdater' ) ) {
+	$gitHubUpdater = new \WPO\GitHubUpdater\GitHubUpdater( $plugin_file );
+	$gitHubUpdater->setChangelog( 'CHANGELOG.md' );
+	$gitHubUpdater->add();
 }
 
 if ( ! class_exists( 'WCPDF_Custom_PDF_Maker_mPDF' ) ) :

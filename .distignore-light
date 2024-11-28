@@ -7,6 +7,7 @@
 .distignore*
 .gitignore
 .gitattributes
+.gitmodules
 
 /vendor/mpdf/mpdf/ttfonts/AboriginalSansREGULAR.ttf
 /vendor/mpdf/mpdf/ttfonts/Abyssinica_SIL.ttf
