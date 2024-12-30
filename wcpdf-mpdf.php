@@ -10,7 +10,7 @@
  * Author URI:       https://www.wpovernight.com
  * License:          GPLv2 or later
  * License URI:      https://opensource.org/licenses/gpl-license.php
- * Text Domain:      woocommerce-pdf-invoices-packing-slips
+ * Text Domain:      woocommerce-pdf-ips-mpdf
  */
 
 use Symfony\Component\DomCrawler\Crawler;
@@ -94,6 +94,11 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 
 endif; // class_exists
 
+add_action( 'init', 'wpo_wcpdf_mpdf_load_translations' );
+function wpo_wcpdf_mpdf_load_translations() {
+	load_plugin_textdomain( 'woocommerce-pdf-ips-mpdf', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+}
+
 add_filter( 'wpo_wcpdf_pdf_maker', 'wpo_wcpdf_pdf_maker_mpdf' );
 function wpo_wcpdf_pdf_maker_mpdf( string $class ): string {
 	if ( ! wpo_wcpdf_mpdf_check_dependencies() ) {
@@ -124,7 +129,7 @@ function wpo_wcpdf_mpdf_check_dependencies(): bool {
 function wpo_wcpdf_mpdf_notice_core_plugin_requirement(): void {
 	$error_message = sprintf(
 		/* translators: 1. Plugin name, 2: Core plugin version, 3: Core plugin name */
-		__( '%1$s requires at least version %2$s of %3$s to be installed and activated.', 'woocommerce-pdf-invoices-packing-slips' ),
+		__( '%1$s requires at least version %2$s of %3$s to be installed and activated.', 'woocommerce-pdf-ips-mpdf' ),
 		'<strong>PDF Invoices & Packing Slips for WooCommerce - mPDF</strong>',
 		'<strong>3.8.4</strong>',
 		'<a href="https://wordpress.org/plugins/woocommerce-pdf-invoices-packing-slips/">PDF Invoices & Packing Slips for WooCommerce</a>'
@@ -283,13 +288,13 @@ function wpo_wcpdf_mpdf_rtl_support( $settings_fields, $page, $option_group, $op
 	$settings_fields[] = array(
 		'type'     => 'setting',
 		'id'       => 'rtl_support',
-		'title'    => __( 'RTL support', 'woocommerce-pdf-invoices-packing-slips' ),
+		'title'    => __( 'RTL support', 'woocommerce-pdf-ips-mpdf' ),
 		'callback' => 'checkbox',
 		'section'  => 'general_settings',
 		'args'     => array(
 			'option_name' => $option_name,
 			'id'          => 'rtl_support',
-			'description' => __( 'Enables RTL support natively for templates.', 'woocommerce-pdf-invoices-packing-slips' ),
+			'description' => __( 'Enables RTL support natively for templates.', 'woocommerce-pdf-ips-mpdf' ),
 		)
 	);
 
