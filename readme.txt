@@ -15,6 +15,7 @@ Add mPDF engine compatibility to PDF Invoices & Packing Slips for WooCommerce fo
 
 Enhance your PDF Invoices & Packing Slips for WooCommerce with mPDF engine integration, replacing the default engine for improved handling of specific languages, including Arabic and Hebrew. This alternative offers robust support for right-to-left orientation, ensuring seamless document creation for a wider range of linguistic needs.
 
+If you require support for Chinese, Japanese, or Korean (CJK) fonts, please install the separate CJK extension available at [GitHub](https://github.com/wpovernight/woocommerce-pdf-ips-mpdf-cjk). This extension ensures compatibility with these languages and needs to be installed separately as it is no longer bundled with this plugin.
 
 == Frequently Asked Questions ==
 
@@ -24,9 +25,5 @@ Please post a message to our [support forum](https://wordpress.org/support/plugi
 
 = How can I contribute to this project? =
 
-This project is hosted on github: https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
-If you want to contribute to the code, feel free to submit a PR. You can also open issues on Github, although we encourage you to open a ticket in the support forum here on WordPress.org first if you're not absolutely sure something is a bug.
-
-= Can I update the CJK version using the built-in updater? =
-
-No, the built-in GitHub updater only supports the standard version. To update the CJK version, please download the latest release manually from the [plugin's releases](https://github.com/wpovernight/woocommerce-pdf-ips-mpdf/releases/).
+This project is hosted on GitHub: https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
+If you want to contribute to the code, feel free to submit a PR. You can also open issues on GitHub, although we encourage you to open a ticket in the support forum here on WordPress.org first if you're not absolutely sure something is a bug.
