@@ -17,12 +17,6 @@ Enhance your PDF Invoices & Packing Slips for WooCommerce with mPDF engine integ
 
 If you require support for Chinese, Japanese, or Korean (CJK) fonts, please install the separate CJK extension available at [GitHub](https://github.com/wpovernight/woocommerce-pdf-ips-mpdf-cjk). This extension ensures compatibility with these languages and needs to be installed separately as it is no longer bundled with this plugin.
 
-== Frequently Asked Questions ==
-
-= Something is not working correctly =
-
-Please post a message to our [support forum](https://wordpress.org/support/plugin/woocommerce-pdf-ips-mpdf) and we'll do our best to help resolve your issue!
-
 = How can I contribute to this project? =
 
 This project is hosted on GitHub: https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
