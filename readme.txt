@@ -3,9 +3,9 @@ Contributors: wpovernight
 Donate link: https://wpovernight.com/
 Tags: woocommerce, mpdf, pdf, rtl
 Requires at least: 4.4
-Tested up to: 6.6
-Requires PHP: 7.2
-Stable tag: 2.5.4
+Tested up to: 6.7
+Requires PHP: 7.4
+Stable tag: 2.5.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

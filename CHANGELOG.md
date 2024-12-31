@@ -1,5 +1,13 @@
 # Changelog
 
+### v2.5.5
+
+- New: Upgraded the mPDF library to version v8.2.5.
+- New: Moved CJK support to an external extension.
+- New: Increased the minimum PHP version requirement to 7.4.
+- Fix: Resolved textdomain and translation loading issues.
+- Fix: Corrected a style issue with WC item meta when using `dd`.
+
 ### v2.5.4
 
 - New: Added GitHub updater (CJK version not supported).
