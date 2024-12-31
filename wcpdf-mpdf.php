@@ -95,7 +95,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 endif; // class_exists
 
 add_action( 'init', 'wpo_wcpdf_mpdf_load_translations' );
-function wpo_wcpdf_mpdf_load_translations() {
+function wpo_wcpdf_mpdf_load_translations(): void {
 	load_plugin_textdomain( 'woocommerce-pdf-ips-mpdf', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 
