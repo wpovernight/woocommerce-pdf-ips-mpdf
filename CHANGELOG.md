@@ -1,5 +1,9 @@
 # Changelog
 
+### v2.5.6
+
+- New: Upgraded the Github updater to v1.1.2
+
 ### v2.5.5
 
 - New: Upgraded the mPDF library to version v8.2.5.
