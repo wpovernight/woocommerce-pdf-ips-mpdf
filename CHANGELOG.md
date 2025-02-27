@@ -1,5 +1,9 @@
 # Changelog
 
+### v2.5.8
+
+- New: Upgraded the Github updater to v1.1.4
+
 ### v2.5.7
 
 - New: Upgraded the Github updater to v1.1.3
