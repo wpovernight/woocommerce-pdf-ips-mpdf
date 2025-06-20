@@ -38,31 +38,41 @@ if ( ! class_exists( 'WCPDF_Custom_PDF_Maker_mPDF' ) ) :
 
 class WCPDF_Custom_PDF_Maker_mPDF {
 	
-	public $html;
-	public $settings;
-	public $document;
+	public string $html;
+	public array $settings;
+	public ?object $document;
+	public bool $hybrid;
 
-	public function __construct( $html, $settings = array(), $document = null ) {
+	public function __construct( string $html, array $settings = array(), ?object $document = null ) {
 		$this->html     = $html;
 		$this->document = $document;
+		$this->hybrid   = $this->is_hybrid_format();
 
 		$default_settings = array(
 			'paper_size'		=> 'A4',
 			'paper_orientation'	=> 'portrait',
 		);
+		
 		$this->settings = $settings + $default_settings;
 	}
 
-	public function output() {
+	/**
+	 * Output the PDF.
+	 *
+	 * @return string|null
+	 */
+	public function output(): ?string {
 		if ( empty( $this->html ) ) {
-			return;
+			return null;
 		}
 		
 		require_once __DIR__ . '/vendor/autoload.php';
 
 		// convert orientation
 		if ( isset( $this->settings['paper_orientation'] ) ) {
-			$orientation = 'portrait' === $this->settings['paper_orientation'] ? 'P' : 'L';
+			$orientation = ( 'portrait' === $this->settings['paper_orientation'] )
+				? 'P'
+				: 'L';
 		} else {
 			$orientation = 'P';
 		}
@@ -75,21 +85,128 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 			'debug'            => true,
 			'useSubstitutions' => file_exists( __DIR__ . '/vendor/mpdf/mpdf/ttfonts/FreeSans.ttf' ),
 		) );
+		
+		if ( $this->hybrid ) {
+			$options = $this->set_pdfa_enabled( $options );
+		}
 
 		try {
 			error_clear_last();
 			$mpdf = new \Mpdf\Mpdf( $options );
 			$mpdf = apply_filters( 'wpo_wcpdf_before_mpdf_write', $mpdf, $this->html, $options, $this->document );
+			
+			if ( $this->hybrid ) {
+				$mpdf = $this->set_pdfa_file( $mpdf );
+			}
+			
 			$mpdf->WriteHTML( $this->html );
 			$mpdf = apply_filters( 'wpo_wcpdf_after_mpdf_write', $mpdf, $this->html, $options, $this->document );
 			
 			return $mpdf->Output( null, \Mpdf\Output\Destination::STRING_RETURN );
-		} catch ( Exception $e ) {
-			$logger = wc_get_logger();
-			$logger->critical( $e->getMessage(), array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return;
+		} catch ( \Exception $e ) {
+			wc_get_logger()->critical( $e->getMessage(), array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			return null;
 		}
 	}
+	
+	/**
+	 * Check if the current document requires hybrid format.
+	 *
+	 * @return bool
+	 */
+	private function is_hybrid_format(): bool {
+		$required = false;
+		
+		if ( function_exists( 'wpo_ips_edi_is_available' ) && wpo_ips_edi_is_available() ) {
+			$format   = wpo_ips_edi_get_current_format( true );
+			$required = is_array( $format ) && $format['hybrid'];
+		}
+		
+		return $required;
+	}
+	
+	/**
+	 * Set PDF/A enabled options.
+	 *
+	 * @param array $options
+	 * @return array
+	 */
+	private function set_pdfa_enabled( array $options ): array {
+		$options['PDFA']     = true;
+		$options['PDFAauto'] = true;
+		return $options;
+	}
+	
+	/**
+	 * Set PDF/A file in mPDF.
+	 *
+	 * @param \Mpdf\Mpdf $mpdf
+	 * @return \Mpdf\Mpdf
+	 */
+	private function set_pdfa_file( \Mpdf\Mpdf $mpdf ) {
+		if (
+			! function_exists( 'wpo_ips_edi_get_current_format' )  ||
+			! function_exists( 'wpo_ips_edi_get_current_syntax' )  ||
+			! class_exists( 'WPO\IPS\EDI\Document' )               ||
+			! class_exists( 'WPO\IPS\EDI\SabreBuilder' )           ||
+			! is_callable( array( $mpdf, 'SetAssociatedFiles' ) )  ||
+			! is_callable( array( $mpdf, 'SetAdditionalXmpRdf' ) )
+		) {
+			wc_get_logger()->error( 'Required functions or methods are not available for setting EDI files.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			return $mpdf;
+		}
+
+		$mpdf->PDFAversion = '3-B'; // Set PDF/A version to 3-B
+
+		$format = wpo_ips_edi_get_current_format();
+		
+		if ( empty( $format ) ) {
+			wc_get_logger()->error( 'EDI format is not available.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			return $mpdf;
+		}
+		
+		$syntax = wpo_ips_edi_get_current_syntax();
+		
+		if ( empty( $syntax ) ) {
+			wc_get_logger()->error( 'EDI syntax is not available.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			return $mpdf;
+		}
+
+		$edi_document = new \WPO\IPS\EDI\Document( $syntax, $format, $this->document );
+		
+		if ( ! $edi_document ) {
+			wc_get_logger()->error( 'EDI document could not be created.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			return $mpdf;
+		}
+
+		$builder  = new \WPO\IPS\EDI\SabreBuilder();
+		$content  = $builder->build( $edi_document );
+
+		if ( empty( $content ) ) {
+			wc_get_logger()->error( 'EDI document content are empty.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			return $mpdf;
+		}
+		
+		$edi_format_document = $edi_document->get_format_document();
+
+		if ( ! $edi_format_document ) {
+			wc_get_logger()->error( 'EDI format document could not be created.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			return $mpdf;
+		}
+		
+		$mpdf->SetAssociatedFiles( array( array(
+			'name'           => $edi_format_document->get_document_filename(),
+			'mime'           => 'text/xml',
+			'description'    => $format,
+			'AFRelationship' => 'Alternative',
+			'content'        => $content,
+		) ) );
+
+		$mpdf->SetAdditionalXmpRdf( $edi_format_document->get_rdf_metadata() );
+		
+		return $mpdf;
+	}
+	
 }
 
 endif; // class_exists
