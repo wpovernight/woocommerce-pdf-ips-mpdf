@@ -1,5 +1,9 @@
 # Changelog
 
+### v2.6.0
+
+- New: Add PDF/A-3 support for hybrid e-invoicing formats
+
 ### v2.5.8
 
 - New: Upgraded the Github updater to v1.1.4
