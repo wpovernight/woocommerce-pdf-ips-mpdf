@@ -53,7 +53,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 			'paper_orientation'	=> 'portrait',
 		);
 		
-		$this->settings = $settings + $default_settings;
+		$this->settings = array_merge( $default_settings, $settings );
 	}
 
 	/**
@@ -183,7 +183,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 		$content  = $builder->build( $edi_document );
 
 		if ( empty( $content ) ) {
-			wc_get_logger()->error( 'EDI document content are empty.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			wc_get_logger()->error( 'EDI document content is empty.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
 			return $mpdf;
 		}
 		
