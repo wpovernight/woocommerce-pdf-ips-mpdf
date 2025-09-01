@@ -1,5 +1,9 @@
 # Changelog
 
+### v2.7.0
+
+- New: Update Composer dependencies (mPDF v8.2.6)
+
 ### v2.6.0
 
 - New: Add PDF/A-3 support for hybrid e-invoicing formats
