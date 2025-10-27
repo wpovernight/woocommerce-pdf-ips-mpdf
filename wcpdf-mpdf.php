@@ -289,11 +289,17 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 	}
 
 	// remove image attributes and replace by inline styles
-	$crawler->filter( 'td.thumbnail img' )->each( function ( Crawler $crawler, $i ) {
+	$thumb_selector    = apply_filters( 'wpo_wcpdf_thumbnail_selector', 'td.thumbnail img', $document );
+	$thumb_style       = apply_filters( 'wpo_wcpdf_thumbnail_img_style', 'width:13mm;height:auto;', $document );
+	$thumb_remove_size = (bool) apply_filters( 'wpo_wcpdf_thumbnail_remove_size_attrs', true, $document );
+
+	$crawler->filter( $thumb_selector )->each( function ( Crawler $crawler, $i ) use ( $thumb_remove_size, $thumb_style ) {
 		foreach ( $crawler as $img ) {
-			$img->removeAttribute( 'width' );
-			$img->removeAttribute( 'height' );
-			$img->setAttribute( 'style', 'width:13mm;height:auto;' );
+			if ( $thumb_remove_size ) {
+				$img->removeAttribute( 'width' );
+				$img->removeAttribute( 'height' );
+			}
+			$img->setAttribute( 'style', $thumb_style );
 		}
 	} );
 
