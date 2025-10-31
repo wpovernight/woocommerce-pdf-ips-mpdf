@@ -1,5 +1,9 @@
 # Changelog
 
+### v2.7.1
+
+- New: Add filters to customize thumbnail image styles and attributes
+
 ### v2.7.0
 
 - New: Update Composer dependencies (mPDF v8.2.6)
