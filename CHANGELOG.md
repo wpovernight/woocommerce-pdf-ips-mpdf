@@ -1,5 +1,9 @@
 # Changelog
 
+### v2.8.0
+
+- New: Update mPDF to v8.2.7 and add Symfony CssSelector dependency
+
 ### v2.7.1
 
 - New: Add filters to customize thumbnail image styles and attributes
