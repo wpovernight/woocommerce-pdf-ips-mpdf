@@ -279,14 +279,18 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 	if ( ! class_exists( 'DOMDocument' ) ) {
 		return $html;
 	}
+	
+	// If CssSelector is not available, bail early to avoid exceptions.
+	if ( ! class_exists( \Symfony\Component\CssSelector\CssSelectorConverter::class ) ) {
+		wc_get_logger()->error( 'Symfony CssSelector component is not available.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+		return $html;
+	}
 
 	$partial_html = stripos( $html, "</html>" ) === false; // for bulk documents
 
-	if ( apply_filters( 'wpo_wcpdf_mpdf_domdocument_debug', false ) ) {
-		$crawler = new Crawler( $html );
-	} else {
-		@$crawler = new Crawler( $html );
-	}
+	$crawler = apply_filters( 'wpo_wcpdf_mpdf_domdocument_debug', false )
+		? new Crawler( $html )
+		: @new Crawler( $html );
 
 	// remove image attributes and replace by inline styles
 	$thumb_selector    = apply_filters( 'wpo_wcpdf_mpdf_thumbnail_selector', 'td.thumbnail img', $document );
