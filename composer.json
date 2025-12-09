@@ -1,7 +1,8 @@
 {
     "require": {
         "mpdf/mpdf": "^8.2",
-        "symfony/dom-crawler": "*"
+        "symfony/dom-crawler": "*",
+        "symfony/css-selector": "*"
     },
     "config": {
         "platform": {
