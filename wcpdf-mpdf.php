@@ -118,8 +118,14 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 		$required = false;
 		
 		if ( function_exists( 'wpo_ips_edi_is_available' ) && wpo_ips_edi_is_available() ) {
-			$format   = wpo_ips_edi_get_current_format( true );
-			$required = is_array( $format ) && $format['hybrid'];
+			$format         = wpo_ips_edi_get_current_format( true );
+			$hybrid         = is_array( $format ) && true === $format['hybrid'];
+			$document_types = is_array( $format['documents'] ) ? array_keys( $format['documents'] ) : array();
+			$document_type  = $this->document && is_callable( array( $this->document, 'get_type' ) ) ? $this->document->get_type() : '';
+			
+			if ( $hybrid && in_array( $document_type, $document_types, true ) ) {
+				$required = true;
+			}
 		}
 		
 		return $required;
