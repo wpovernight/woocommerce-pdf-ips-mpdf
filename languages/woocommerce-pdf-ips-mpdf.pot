@@ -1,15 +1,15 @@
-# Copyright (C) 2025 WP Overnight
+# Copyright (C) 2026 WP Overnight
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: PDF Invoices & Packing Slips for WooCommerce - mPDF 2.8.0\n"
+"Project-Id-Version: PDF Invoices & Packing Slips for WooCommerce - mPDF 2.8.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-pdf-ips-mpdf\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-09T11:34:26+00:00\n"
+"POT-Creation-Date: 2026-01-07T09:12:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: woocommerce-pdf-ips-mpdf\n"
@@ -40,15 +40,15 @@ msgid "https://www.wpovernight.com"
 msgstr ""
 
 #. translators: 1. Plugin name, 2: Core plugin version, 3: Core plugin name
-#: wcpdf-mpdf.php:249
+#: wcpdf-mpdf.php:255
 #, php-format
 msgid "%1$s requires at least version %2$s of %3$s to be installed and activated."
 msgstr ""
 
-#: wcpdf-mpdf.php:418
+#: wcpdf-mpdf.php:424
 msgid "RTL support"
 msgstr ""
 
-#: wcpdf-mpdf.php:424
+#: wcpdf-mpdf.php:430
 msgid "Enables RTL support natively for templates."
 msgstr ""

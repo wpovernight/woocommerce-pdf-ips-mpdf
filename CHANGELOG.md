@@ -1,5 +1,9 @@
 # Changelog
 
+### v2.8.1
+
+- Fix: Restrict hybrid format to supported document types only
+
 ### v2.8.0
 
 - New: Update mPDF to v8.2.7 and add Symfony CssSelector dependency
