@@ -4,7 +4,7 @@
  * Requires Plugins: woocommerce-pdf-invoices-packing-slips
  * Plugin URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
  * Description:      Utilizes the mPDF engine as an alternative for converting HTML to PDF.
- * Version:          2.8.1
+ * Version:          3.0.0-i51.1
  * Update URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
  * Author:           WP Overnight
  * Author URI:       https://www.wpovernight.com
@@ -14,6 +14,10 @@
  */
 
 use Symfony\Component\DomCrawler\Crawler;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Mpdf;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Output\Destination;
+use WPO\IPS\EDI\Document as EDI_Document;
+use WPO\IPS\EDI\SabreBuilder as EDI_SabreBuilder;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -33,6 +37,9 @@ if ( class_exists( '\\WPO\\GitHubUpdater\\GitHubUpdater' ) ) {
 	$gitHubUpdater->setChangelog( 'CHANGELOG.md' );
 	$gitHubUpdater->add();
 }
+
+require $plugin_path . '/vendor/autoload.php';
+require $plugin_path . '/vendor/strauss/autoload.php';
 
 if ( ! class_exists( 'WCPDF_Custom_PDF_Maker_mPDF' ) ) :
 
@@ -65,8 +72,6 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 		if ( empty( $this->html ) ) {
 			return null;
 		}
-		
-		require_once __DIR__ . '/vendor/autoload.php';
 
 		// convert orientation
 		if ( isset( $this->settings['paper_orientation'] ) ) {
@@ -92,7 +97,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 
 		try {
 			error_clear_last();
-			$mpdf = new \Mpdf\Mpdf( $options );
+			$mpdf = new Mpdf( $options );
 			$mpdf = apply_filters( 'wpo_wcpdf_before_mpdf_write', $mpdf, $this->html, $options, $this->document );
 			
 			if ( $this->hybrid ) {
@@ -102,7 +107,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 			$mpdf->WriteHTML( $this->html );
 			$mpdf = apply_filters( 'wpo_wcpdf_after_mpdf_write', $mpdf, $this->html, $options, $this->document );
 			
-			return $mpdf->Output( null, \Mpdf\Output\Destination::STRING_RETURN );
+			return $mpdf->Output( null, Destination::STRING_RETURN );
 		} catch ( \Exception $e ) {
 			wc_get_logger()->critical( $e->getMessage(), array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
 			return null;
@@ -146,10 +151,10 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 	/**
 	 * Set PDF/A file in mPDF.
 	 *
-	 * @param \Mpdf\Mpdf $mpdf
-	 * @return \Mpdf\Mpdf
+	 * @param Mpdf $mpdf
+	 * @return Mpdf
 	 */
-	private function set_pdfa_file( \Mpdf\Mpdf $mpdf ) {
+	private function set_pdfa_file( Mpdf $mpdf ) {
 		if (
 			! function_exists( 'wpo_ips_edi_get_current_format' )  ||
 			! function_exists( 'wpo_ips_edi_get_current_syntax' )  ||
@@ -178,14 +183,14 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 			return $mpdf;
 		}
 
-		$edi_document = new \WPO\IPS\EDI\Document( $syntax, $format, $this->document );
+		$edi_document = new EDI_Document( $syntax, $format, $this->document );
 		
 		if ( ! $edi_document ) {
 			wc_get_logger()->error( 'EDI document could not be created.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
 			return $mpdf;
 		}
 
-		$builder  = new \WPO\IPS\EDI\SabreBuilder();
+		$builder  = new EDI_SabreBuilder();
 		$content  = $builder->build( $edi_document );
 
 		if ( empty( $content ) ) {
@@ -279,9 +284,7 @@ function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) 
 }
 
 add_filter( 'wpo_wcpdf_get_html', 'wpo_wcpdf_mpdf_modify_html', 10, 2 );
-function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
-	require_once __DIR__ . '/vendor/autoload.php';
-	
+function wpo_wcpdf_mpdf_modify_html( $html, $document ) {	
 	if ( ! class_exists( 'DOMDocument' ) ) {
 		return $html;
 	}

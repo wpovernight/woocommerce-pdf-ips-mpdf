@@ -5,7 +5,7 @@ Tags: woocommerce, mpdf, pdf, rtl
 Requires at least: 4.4
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.8.1
+Stable tag: 3.0.0-i51.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
