@@ -18,8 +18,20 @@ namespace Symfony\Component\DomCrawler;
  */
 abstract class AbstractUriElement
 {
-    protected \DOMElement $node;
-    protected ?string $method;
+    /**
+     * @var \DOMElement
+     */
+    protected $node;
+
+    /**
+     * @var string|null The method to use for the element
+     */
+    protected $method;
+
+    /**
+     * @var string The URI of the page where the element is embedded (or the base href)
+     */
+    protected $currentUri;
 
     /**
      * @param \DOMElement $node       A \DOMElement instance
@@ -28,56 +40,64 @@ abstract class AbstractUriElement
      *
      * @throws \InvalidArgumentException if the node is not a link
      */
-    public function __construct(
-        \DOMElement $node,
-        protected ?string $currentUri = null,
-        ?string $method = 'GET',
-    ) {
+    public function __construct(\DOMElement $node, ?string $currentUri = null, ?string $method = 'GET')
+    {
         $this->setNode($node);
         $this->method = $method ? strtoupper($method) : null;
+        $this->currentUri = $currentUri;
 
         $elementUriIsRelative = !parse_url(trim($this->getRawUri()), \PHP_URL_SCHEME);
-        $baseUriIsAbsolute = null !== $this->currentUri && \in_array(strtolower(substr($this->currentUri, 0, 4)), ['http', 'file'], true);
+        $baseUriIsAbsolute = null !== $this->currentUri && \in_array(strtolower(substr($this->currentUri, 0, 4)), ['http', 'file']);
         if ($elementUriIsRelative && !$baseUriIsAbsolute) {
-            throw new \InvalidArgumentException(\sprintf('The URL of the element is relative, so you must define its base URI passing an absolute URL to the constructor of the "%s" class ("%s" was passed).', __CLASS__, $this->currentUri));
+            throw new \InvalidArgumentException(sprintf('The URL of the element is relative, so you must define its base URI passing an absolute URL to the constructor of the "%s" class ("%s" was passed).', __CLASS__, $this->currentUri));
         }
     }
 
     /**
      * Gets the node associated with this link.
+     *
+     * @return \DOMElement
      */
-    public function getNode(): \DOMElement
+    public function getNode()
     {
         return $this->node;
     }
 
     /**
      * Gets the method associated with this link.
+     *
+     * @return string
      */
-    public function getMethod(): string
+    public function getMethod()
     {
         return $this->method ?? 'GET';
     }
 
     /**
      * Gets the URI associated with this link.
+     *
+     * @return string
      */
-    public function getUri(): string
+    public function getUri()
     {
         return UriResolver::resolve($this->getRawUri(), $this->currentUri);
     }
 
     /**
      * Returns raw URI data.
+     *
+     * @return string
      */
-    abstract protected function getRawUri(): string;
+    abstract protected function getRawUri();
 
     /**
      * Returns the canonicalized URI path (see RFC 3986, section 5.2.4).
      *
      * @param string $path URI path
+     *
+     * @return string
      */
-    protected function canonicalizePath(string $path): string
+    protected function canonicalizePath(string $path)
     {
         if ('' === $path || '/' === $path) {
             return $path;
@@ -107,5 +127,5 @@ abstract class AbstractUriElement
      *
      * @throws \LogicException If given node is not an anchor
      */
-    abstract protected function setNode(\DOMElement $node): void;
+    abstract protected function setNode(\DOMElement $node);
 }

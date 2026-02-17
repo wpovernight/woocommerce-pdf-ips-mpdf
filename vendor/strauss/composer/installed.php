@@ -4,7 +4,7 @@
     'name' => 'wpovernight/woocommerce-pdf-ips-mpdf',
     'pretty_version' => 'dev-main',
     'version' => 'dev-main',
-    'reference' => '52672e284b239546e545d047af927643518b9a0a',
+    'reference' => 'ae4703e12c101839bd5f3732b279fe5dc4350e12',
     'type' => 'library',
     'install_path' => __DIR__ . '/../',
     'aliases' => 

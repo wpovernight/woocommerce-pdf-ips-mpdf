@@ -3,8 +3,8 @@
 	"description": "PDF Invoices & Packing Slips for WooCommerce - mPDF",
 	"require": {
         "mpdf/mpdf": "^8.2",
-        "symfony/dom-crawler": "*",
-        "symfony/css-selector": "*"
+        "symfony/dom-crawler": "^5.4",
+        "symfony/css-selector": "^5.4"
     },
 	"extra": {
 		"strauss": {

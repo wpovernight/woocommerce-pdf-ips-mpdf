@@ -20,13 +20,14 @@ use Symfony\Component\DomCrawler\Field\FormField;
  */
 class FormFieldRegistry
 {
-    private array $fields = [];
-    private string $base = '';
+    private $fields = [];
+
+    private $base = '';
 
     /**
      * Adds a field to the registry.
      */
-    public function add(FormField $field): void
+    public function add(FormField $field)
     {
         $segments = $this->getSegments($field->getName());
 
@@ -48,7 +49,7 @@ class FormFieldRegistry
     /**
      * Removes a field based on the fully qualified name and its children from the registry.
      */
-    public function remove(string $name): void
+    public function remove(string $name)
     {
         $segments = $this->getSegments($name);
         $target = &$this->fields;
@@ -69,14 +70,14 @@ class FormFieldRegistry
      *
      * @throws \InvalidArgumentException if the field does not exist
      */
-    public function &get(string $name): FormField|array
+    public function &get(string $name)
     {
         $segments = $this->getSegments($name);
         $target = &$this->fields;
         while ($segments) {
             $path = array_shift($segments);
             if (!\is_array($target) || !\array_key_exists($path, $target)) {
-                throw new \InvalidArgumentException(\sprintf('Unreachable field "%s".', $path));
+                throw new \InvalidArgumentException(sprintf('Unreachable field "%s".', $path));
             }
             $target = &$target[$path];
         }
@@ -93,7 +94,7 @@ class FormFieldRegistry
             $this->get($name);
 
             return true;
-        } catch (\InvalidArgumentException) {
+        } catch (\InvalidArgumentException $e) {
             return false;
         }
     }
@@ -101,12 +102,14 @@ class FormFieldRegistry
     /**
      * Set the value of a field based on the fully qualified name and its children.
      *
+     * @param mixed $value The value
+     *
      * @throws \InvalidArgumentException if the field does not exist
      */
-    public function set(string $name, mixed $value): void
+    public function set(string $name, $value)
     {
         $target = &$this->get($name);
-        if ((!\is_array($value) && $target instanceof FormField) || $target instanceof Field\ChoiceFormField) {
+        if ((!\is_array($value) && $target instanceof Field\FormField) || $target instanceof Field\ChoiceFormField) {
             $target->setValue($value);
         } elseif (\is_array($value)) {
             $registry = new static();
@@ -116,7 +119,7 @@ class FormFieldRegistry
                 $this->set($k, $v);
             }
         } else {
-            throw new \InvalidArgumentException(\sprintf('Cannot set value on a compound field "%s".', $name));
+            throw new \InvalidArgumentException(sprintf('Cannot set value on a compound field "%s".', $name));
         }
     }
 
@@ -136,7 +139,7 @@ class FormFieldRegistry
     private function walk(array $array, ?string $base = '', array &$output = []): array
     {
         foreach ($array as $k => $v) {
-            $path = $base ? \sprintf('%s[%s]', $base, $k) : $k;
+            $path = empty($base) ? $k : sprintf('%s[%s]', $base, $k);
             if (\is_array($v)) {
                 $this->walk($v, $path, $output);
             } else {
