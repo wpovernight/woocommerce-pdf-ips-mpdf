@@ -2,7 +2,8 @@
 	"name": "wpovernight/woocommerce-pdf-ips-mpdf",
 	"description": "PDF Invoices & Packing Slips for WooCommerce - mPDF",
 	"require": {
-        "mpdf/mpdf": "^8.2",
+		"php": ">=7.4",
+        "mpdf/mpdf": "^8.3",
         "symfony/dom-crawler": "^5.4",
         "symfony/css-selector": "^5.4"
     },

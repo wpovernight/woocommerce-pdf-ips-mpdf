@@ -4,7 +4,7 @@
     'name' => 'wpovernight/woocommerce-pdf-ips-mpdf',
     'pretty_version' => 'dev-main',
     'version' => 'dev-main',
-    'reference' => 'ae4703e12c101839bd5f3732b279fe5dc4350e12',
+    'reference' => 'c2912ff627b9c144557f154d2410027e8407dc11',
     'type' => 'library',
     'install_path' => __DIR__ . '/../',
     'aliases' => 
@@ -16,9 +16,9 @@
   array (
     'mpdf/mpdf' => 
     array (
-      'pretty_version' => 'v8.2.7',
-      'version' => '8.2.7.0',
-      'reference' => 'b59670a09498689c33ce639bac8f5ba26721dab3',
+      'pretty_version' => 'v8.3.1',
+      'version' => '8.3.1.0',
+      'reference' => '2a454ec334109911fdb323a284c19dbf3f049810',
       'type' => 'library',
       'install_path' => __DIR__ . '/../mpdf/mpdf',
       'aliases' => 
@@ -100,9 +100,9 @@
     ),
     'setasign/fpdi' => 
     array (
-      'pretty_version' => 'v2.6.4',
-      'version' => '2.6.4.0',
-      'reference' => '4b53852fde2734ec6a07e458a085db627c60eada',
+      'pretty_version' => 'v2.6.7',
+      'version' => '2.6.7.0',
+      'reference' => '388c51e69982a3fc16698710b763e8107a49f510',
       'type' => 'library',
       'install_path' => __DIR__ . '/../setasign/fpdi',
       'aliases' => 

@@ -51,6 +51,7 @@ namespace WPO\IPS\Mpdf\Vendor {
     'implements' => 
     array (
       0 => 'Psr\\Log\\LoggerAwareInterface',
+      1 => 'Mpdf\\AssetFetcherInterface',
     ),
   ),
   'Mpdf\\Barcode\\AbstractBarcode' => 
@@ -231,6 +232,17 @@ namespace WPO\IPS\Mpdf\Vendor {
       0 => 'Mpdf\\Barcode\\BarcodeInterface',
     ),
   ),
+  'Mpdf\\Buffer' => 
+  array (
+    'type' => 'class',
+    'classname' => 'Buffer',
+    'isabstract' => false,
+    'namespace' => 'Mpdf',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Buffer',
+    'implements' => 
+    array (
+    ),
+  ),
   'Mpdf\\Cache' => 
   array (
     'type' => 'class',
@@ -397,6 +409,61 @@ namespace WPO\IPS\Mpdf\Vendor {
     array (
     ),
   ),
+  'Mpdf\\Css\\BorderMerger' => 
+  array (
+    'type' => 'class',
+    'classname' => 'BorderMerger',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\BorderMerger',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\CommentParser' => 
+  array (
+    'type' => 'class',
+    'classname' => 'CommentParser',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\CommentParser',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\CssLoader' => 
+  array (
+    'type' => 'class',
+    'classname' => 'CssLoader',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\CssLoader',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\CssMerger' => 
+  array (
+    'type' => 'class',
+    'classname' => 'CssMerger',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\CssMerger',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\CssParser' => 
+  array (
+    'type' => 'class',
+    'classname' => 'CssParser',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\CssParser',
+    'implements' => 
+    array (
+    ),
+  ),
   'Mpdf\\Css\\DefaultCss' => 
   array (
     'type' => 'class',
@@ -404,6 +471,72 @@ namespace WPO\IPS\Mpdf\Vendor {
     'isabstract' => false,
     'namespace' => 'Mpdf\\Css',
     'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\DefaultCss',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\InlinePropertyConverter' => 
+  array (
+    'type' => 'class',
+    'classname' => 'InlinePropertyConverter',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\InlinePropertyConverter',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\InlineStyleParser' => 
+  array (
+    'type' => 'class',
+    'classname' => 'InlineStyleParser',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\InlineStyleParser',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\MediaQueryProcessor' => 
+  array (
+    'type' => 'class',
+    'classname' => 'MediaQueryProcessor',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\MediaQueryProcessor',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\NormalizeProperties' => 
+  array (
+    'type' => 'class',
+    'classname' => 'NormalizeProperties',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\NormalizeProperties',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\SelectorParser' => 
+  array (
+    'type' => 'class',
+    'classname' => 'SelectorParser',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\SelectorParser',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Mpdf\\Css\\ShadowParser' => 
+  array (
+    'type' => 'class',
+    'classname' => 'ShadowParser',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Css',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Css\\ShadowParser',
     'implements' => 
     array (
     ),
@@ -2234,6 +2367,17 @@ namespace WPO\IPS\Mpdf\Vendor {
     array (
     ),
   ),
+  'Mpdf\\Utils\\Path' => 
+  array (
+    'type' => 'class',
+    'classname' => 'Path',
+    'isabstract' => false,
+    'namespace' => 'Mpdf\\Utils',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\Utils\\Path',
+    'implements' => 
+    array (
+    ),
+  ),
   'Mpdf\\Utils\\PdfDate' => 
   array (
     'type' => 'class',
@@ -3388,6 +3532,16 @@ namespace WPO\IPS\Mpdf\Vendor {
     'use' => 
     array (
       0 => 'WPO\\IPS\\Mpdf\\Vendor\\setasign\\Fpdi\\FpdiTrait',
+    ),
+  ),
+  'Mpdf\\AssetFetcherInterface' => 
+  array (
+    'type' => 'interface',
+    'interfacename' => 'AssetFetcherInterface',
+    'namespace' => 'Mpdf',
+    'extends' => 
+    array (
+      0 => 'WPO\\IPS\\Mpdf\\Vendor\\Mpdf\\AssetFetcherInterface',
     ),
   ),
   'Mpdf\\Barcode\\BarcodeInterface' => 

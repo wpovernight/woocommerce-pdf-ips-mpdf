@@ -5,6 +5,14 @@ namespace WPO\IPS\Mpdf\Vendor\Mpdf;
 use WPO\IPS\Mpdf\Vendor\Mpdf\Color\ColorConverter;
 use WPO\IPS\Mpdf\Vendor\Mpdf\Color\ColorModeConverter;
 use WPO\IPS\Mpdf\Vendor\Mpdf\Color\ColorSpaceRestrictor;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Css\BorderMerger;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Css\CssMerger;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Css\CssParser;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Css\InlinePropertyConverter;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Css\InlineStyleParser;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Css\NormalizeProperties;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Css\SelectorParser;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Css\ShadowParser;
 use WPO\IPS\Mpdf\Vendor\Mpdf\File\LocalContentLoader;
 use WPO\IPS\Mpdf\Vendor\Mpdf\Fonts\FontCache;
 use WPO\IPS\Mpdf\Vendor\Mpdf\Fonts\FontFileFinder;
@@ -81,9 +89,29 @@ class ServiceFactory
 			? $this->container->get('localContentLoader')
 			: new LocalContentLoader();
 
-		$assetFetcher = new AssetFetcher($mpdf, $localContentLoader, $httpClient, $logger);
+		$assetFetcher = $this->container && $this->container->has('assetFetcher')
+			? $this->container->get('assetFetcher')
+			: new AssetFetcher($mpdf, $localContentLoader, $httpClient, $logger);
 
-		$cssManager = new CssManager($mpdf, $cache, $sizeConverter, $colorConverter, $assetFetcher);
+		$normalizeProperties = new NormalizeProperties($mpdf, $sizeConverter, $colorConverter);
+		$selectorParser = new SelectorParser($mpdf);
+		$inlineStyleParser = new InlineStyleParser($normalizeProperties);
+		$inlinePropertyConverter = new InlinePropertyConverter($colorConverter);
+		$borderMerger = new BorderMerger();
+
+		$cssParser = new CssParser($mpdf, $cache, $sizeConverter, $colorConverter, $assetFetcher);
+
+		$cssMerger = new CssMerger(
+			$mpdf,
+			$normalizeProperties,
+			$inlineStyleParser,
+			$selectorParser,
+			$inlinePropertyConverter,
+			$colorConverter,
+			$borderMerger
+		);
+
+		$cssManager = new CssManager($cssParser, $cssMerger);
 
 		$otl = new Otl($mpdf, $fontCache);
 

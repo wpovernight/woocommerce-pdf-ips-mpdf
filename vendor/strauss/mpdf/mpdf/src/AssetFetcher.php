@@ -10,7 +10,7 @@ use WPO\IPS\Mpdf\Vendor\Mpdf\PsrHttpMessageShim\Request;
 use WPO\IPS\Mpdf\Vendor\Mpdf\PsrLogAwareTrait\PsrLogAwareTrait;
 use WPO\IPS\Mpdf\Vendor\Psr\Log\LoggerInterface;
 
-class AssetFetcher implements \WPO\IPS\Mpdf\Vendor\Psr\Log\LoggerAwareInterface
+class AssetFetcher implements \WPO\IPS\Mpdf\Vendor\Psr\Log\LoggerAwareInterface, \WPO\IPS\Mpdf\Vendor\Mpdf\AssetFetcherInterface
 {
 
 	use PsrLogAwareTrait;

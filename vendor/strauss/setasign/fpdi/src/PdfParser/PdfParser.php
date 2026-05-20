@@ -4,7 +4,7 @@
  * This file is part of FPDI
  *
  * @package   setasign\Fpdi
- * @copyright Copyright (c) 2024 Setasign GmbH & Co. KG (https://www.setasign.com)
+ * @copyright Copyright (c) 2026 Setasign GmbH & Co. KG (https://www.setasign.com)
  * @license   http://opensource.org/licenses/mit-license The MIT License
  */
 namespace WPO\IPS\Mpdf\Vendor\setasign\Fpdi\PdfParser;
@@ -152,12 +152,12 @@ class PdfParser
         if (\preg_match('/%PDF-(\d)\.(\d)/', $this->fileHeader, $result) === 0) {
             throw new PdfParserException('Unable to extract PDF version from file header.', PdfParserException::PDF_VERSION_NOT_FOUND);
         }
-        list(, $major, $minor) = $result;
+        [, $major, $minor] = $result;
         $catalog = $this->getCatalog();
         if (isset($catalog->value['Version'])) {
             $versionParts = \explode('.', PdfName::unescape(PdfType::resolve($catalog->value['Version'], $this)->value));
             if (count($versionParts) === 2) {
-                list($major, $minor) = $versionParts;
+                [$major, $minor] = $versionParts;
             }
         }
         return [(int) $major, (int) $minor];

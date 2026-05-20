@@ -279,11 +279,7 @@ trait FpdiTrait
     }
     protected function _put($s, $newLine = true)
     {
-        if ($newLine) {
-            $this->buffer .= $s . "\n";
-        } else {
-            $this->buffer .= $s;
-        }
+        $this->buffer->append($s, $newLine);
     }
     /**
      * Writes a PdfType object to the resulting buffer.
