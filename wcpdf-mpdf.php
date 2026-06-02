@@ -41,26 +41,56 @@ if ( class_exists( '\\WPO\\GitHubUpdater\\GitHubUpdater' ) ) {
 require $plugin_path . '/vendor/autoload.php';
 require $plugin_path . '/vendor/strauss/autoload.php';
 
+/**
+ * Compatibility base class.
+ *
+ * In PDF Invoices & Packing Slips v6, PDF makers must extend \WPO\IPS\Makers\PDFMaker.
+ * Older versions do not have that class, so we keep a fallback base class with the
+ * legacy constructor/properties.
+ */
+if ( ! class_exists( 'WCPDF_Custom_PDF_Maker_mPDF_Base' ) ) {
+	if ( function_exists( 'WPO_WCPDF' ) && ! class_exists( '\\WPO\\IPS\\Makers\\PDFMaker' ) ) {
+		$pdf_maker_file = WPO_WCPDF()->plugin_path() . '/includes/Makers/PDFMaker.php';
+
+		if ( file_exists( $pdf_maker_file ) ) {
+			include_once $pdf_maker_file;
+		}
+	}
+
+	if ( class_exists( '\\WPO\\IPS\\Makers\\PDFMaker' ) ) {
+		abstract class WCPDF_Custom_PDF_Maker_mPDF_Base extends \WPO\IPS\Makers\PDFMaker {}
+	} else {
+		abstract class WCPDF_Custom_PDF_Maker_mPDF_Base {
+
+			public string $html;
+			public array $settings;
+			public ?object $document;
+
+			public function __construct( string $html, array $settings = array(), ?object $document = null ) {
+				$this->html     = $html;
+				$this->document = $document;
+
+				$default_settings = array(
+					'paper_size'        => 'A4',
+					'paper_orientation' => 'portrait',
+				);
+
+				$this->settings = array_merge( $default_settings, $settings );
+			}
+		}
+	}
+}
+
 if ( ! class_exists( 'WCPDF_Custom_PDF_Maker_mPDF' ) ) :
 
-class WCPDF_Custom_PDF_Maker_mPDF {
-	
-	public string $html;
-	public array $settings;
-	public ?object $document;
+class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
+
 	public bool $hybrid;
 
 	public function __construct( string $html, array $settings = array(), ?object $document = null ) {
-		$this->html     = $html;
-		$this->document = $document;
-		$this->hybrid   = $this->is_hybrid_format();
+		parent::__construct( $html, $settings, $document );
 
-		$default_settings = array(
-			'paper_size'		=> 'A4',
-			'paper_orientation'	=> 'portrait',
-		);
-		
-		$this->settings = array_merge( $default_settings, $settings );
+		$this->hybrid = $this->is_hybrid_format();
 	}
 
 	/**
@@ -220,7 +250,7 @@ class WCPDF_Custom_PDF_Maker_mPDF {
 	
 }
 
-endif; // class_exists
+endif;
 
 add_action( 'init', 'wpo_wcpdf_mpdf_load_translations' );
 function wpo_wcpdf_mpdf_load_translations(): void {
@@ -259,7 +289,7 @@ function wpo_wcpdf_mpdf_notice_core_plugin_requirement(): void {
 		/* translators: 1. Plugin name, 2: Core plugin version, 3: Core plugin name */
 		__( '%1$s requires at least version %2$s of %3$s to be installed and activated.', 'woocommerce-pdf-ips-mpdf' ),
 		'<strong>PDF Invoices & Packing Slips for WooCommerce - mPDF</strong>',
-		'<strong>3.8.4</strong>',
+		'<strong>3.8.7</strong>',
 		'<a href="https://wordpress.org/plugins/woocommerce-pdf-invoices-packing-slips/">PDF Invoices & Packing Slips for WooCommerce</a>'
 	);
 

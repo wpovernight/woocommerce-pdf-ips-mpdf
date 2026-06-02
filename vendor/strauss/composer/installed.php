@@ -4,7 +4,7 @@
     'name' => 'wpovernight/woocommerce-pdf-ips-mpdf',
     'pretty_version' => 'dev-main',
     'version' => 'dev-main',
-    'reference' => 'c2912ff627b9c144557f154d2410027e8407dc11',
+    'reference' => '418f70d9c17cdb46d1cb74e7d9f5f7bcad00216f',
     'type' => 'library',
     'install_path' => __DIR__ . '/../',
     'aliases' => 
@@ -40,9 +40,9 @@
     ),
     'mpdf/psr-log-aware-trait' => 
     array (
-      'pretty_version' => 'v3.0.0',
-      'version' => '3.0.0.0',
-      'reference' => 'a633da6065e946cc491e1c962850344bb0bf3e78',
+      'pretty_version' => 'v2.0.0',
+      'version' => '2.0.0.0',
+      'reference' => '7a077416e8f39eb626dee4246e0af99dd9ace275',
       'type' => 'library',
       'install_path' => __DIR__ . '/../mpdf/psr-log-aware-trait',
       'aliases' => 
@@ -88,9 +88,9 @@
     ),
     'psr/log' => 
     array (
-      'pretty_version' => '3.0.2',
-      'version' => '3.0.2.0',
-      'reference' => 'f16e1d5863e37f8d8c2a01719f5b34baa2b714d3',
+      'pretty_version' => '1.1.4',
+      'version' => '1.1.4.0',
+      'reference' => 'd49695b909c3b7628b6289db5479a1c204601f11',
       'type' => 'library',
       'install_path' => __DIR__ . '/../psr/log',
       'aliases' => 
