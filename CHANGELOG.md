@@ -1,5 +1,10 @@
 # Changelog
 
+### v3.2.0
+
+- New: Added core v6 compatibility for the mPDF maker.
+- Fix: Updated `symfony/dom-crawler` to fix a security alert.
+
 ### v3.1.0
 
 - New: Update mPDF to 8.3.1
