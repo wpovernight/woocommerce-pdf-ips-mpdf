@@ -22,6 +22,8 @@ class ComposerAutoloaderInitbc8e0a90d90910c5cc39296217fcf3eb
             return self::$loader;
         }
 
+        require __DIR__ . '/platform_check.php';
+
         spl_autoload_register(array('ComposerAutoloaderInitbc8e0a90d90910c5cc39296217fcf3eb', 'loadClassLoader'), true, true);
         self::$loader = $loader = new \WPO\IPS\Mpdf\Vendor\Composer\Autoload\ClassLoader(\dirname(__DIR__));
         spl_autoload_unregister(array('ComposerAutoloaderInitbc8e0a90d90910c5cc39296217fcf3eb', 'loadClassLoader'));

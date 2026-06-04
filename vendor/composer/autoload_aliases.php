@@ -2932,6 +2932,39 @@ namespace WPO\IPS\Mpdf\Vendor {
     array (
     ),
   ),
+  'Psr\\Log\\Test\\DummyTest' => 
+  array (
+    'type' => 'class',
+    'classname' => 'DummyTest',
+    'isabstract' => false,
+    'namespace' => 'Psr\\Log\\Test',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Psr\\Log\\Test\\DummyTest',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Psr\\Log\\Test\\LoggerInterfaceTest' => 
+  array (
+    'type' => 'class',
+    'classname' => 'LoggerInterfaceTest',
+    'isabstract' => true,
+    'namespace' => 'Psr\\Log\\Test',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Psr\\Log\\Test\\LoggerInterfaceTest',
+    'implements' => 
+    array (
+    ),
+  ),
+  'Psr\\Log\\Test\\TestLogger' => 
+  array (
+    'type' => 'class',
+    'classname' => 'TestLogger',
+    'isabstract' => false,
+    'namespace' => 'Psr\\Log\\Test',
+    'extends' => 'WPO\\IPS\\Mpdf\\Vendor\\Psr\\Log\\Test\\TestLogger',
+    'implements' => 
+    array (
+    ),
+  ),
   'setasign\\Fpdi\\FpdfTpl' => 
   array (
     'type' => 'class',
