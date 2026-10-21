@@ -17,8 +17,12 @@
  */
 
 use Symfony\Component\DomCrawler\Crawler;
+use WPO\IPS\Mpdf\ResourceContainer;
+use WPO\IPS\Mpdf\RemoteClient;
 use WPO\IPS\Mpdf\Vendor\Mpdf\Mpdf;
 use WPO\IPS\Mpdf\Vendor\Mpdf\Output\Destination;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Config\ConfigVariables;
+use WPO\IPS\Mpdf\Vendor\Mpdf\Config\FontVariables;
 use WPO\IPS\EDI\Document as EDI_Document;
 use WPO\IPS\EDI\SabreBuilder as EDI_SabreBuilder;
 
@@ -138,7 +142,7 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 		$tmp_path = is_callable( array( $main, 'ensure_tmp_path' ) ) ? $main->ensure_tmp_path( 'dompdf' ) : $main->get_tmp_path( 'dompdf' );
 
 		if ( ! $tmp_path ) {
-			wc_get_logger()->critical( 'PDF temporary folder is not available.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			wcpdf_log_error( 'PDF temporary folder is not available.', 'critical', null, 'woocommerce-pdf-ips-mpdf' );
 			return null;
 		}
 
@@ -156,8 +160,11 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 			'format'           => $this->settings['paper_size'],
 			'orientation'      => $orientation,
 			'tempDir'          => $tmp_path,
-			'debug'            => true,
-			'useSubstitutions' => file_exists( __DIR__ . '/vendor/mpdf/mpdf/ttfonts/FreeSans.ttf' ),
+			'debug'            => isset( wpo_wcpdf_mpdf_get_settings( 'debug' )['enable_debug'] ),
+			'useSubstitutions' => $this->has_substitution_font(),
+			'percentSubset'    => array_key_exists( 'font_subsetting', $this->settings )
+				? ( $this->settings['font_subsetting'] ? 100 : 0 )
+				: ( new ConfigVariables() )->getDefaults()['percentSubset'],
 		) );
 		
 		if ( $this->hybrid ) {
@@ -166,7 +173,11 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 
 		try {
 			error_clear_last();
-			$mpdf = new Mpdf( $options, $this->get_resource_container() );
+			$container = $this->get_resource_container();
+			$mpdf      = new Mpdf( $options, $container );
+			if ( $container ) {
+				$container->set_mpdf( $mpdf );
+			}
 			$mpdf = apply_filters( 'wpo_wcpdf_before_mpdf_write', $mpdf, $this->html, $options, $this->document );
 			
 			if ( $this->hybrid && ! $this->set_pdfa_file( $mpdf ) ) {
@@ -178,45 +189,64 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 			
 			return $mpdf->Output( null, Destination::STRING_RETURN );
 		} catch ( \Throwable $e ) {
-			wc_get_logger()->critical( $e->getMessage(), array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			wcpdf_log_error( $e->getMessage(), 'critical', $e, 'woocommerce-pdf-ips-mpdf' );
 			return null;
 		}
 	}
 
 	/**
+	 * Find the substitution font using mPDF's own font configuration.
+	 *
+	 * @return bool Whether the bundled FreeSans font is readable.
+	 */
+	private function has_substitution_font(): bool {
+		$config = ( new ConfigVariables() )->getDefaults();
+		$fonts  = ( new FontVariables() )->getDefaults();
+		$file   = $fonts['fontdata']['freesans']['R'] ?? '';
+		foreach ( (array) $config['fontDir'] as $directory ) {
+			if ( '' !== $file && is_readable( $directory . '/' . $file ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Use core's resource policy when available; retain the legacy loader on older core versions.
 	 *
-	 * @return WCPDF_mPDF_Resource_Container|null
+	 * @return ResourceContainer|null
 	 */
-	private function get_resource_container(): ?WCPDF_mPDF_Resource_Container {
+	private function get_resource_container(): ?ResourceContainer {
 		if (
 			! function_exists( 'wpo_ips_get_trusted_resource_urls' ) ||
+			! function_exists( 'wpo_ips_get_allowed_remote_hosts' ) ||
 			! function_exists( 'wpo_ips_get_allowed_remote_ports' ) ||
-			! function_exists( 'wpo_ips_normalize_remote_hosts' )
+			! function_exists( 'wpo_ips_is_allowed_remote_resource' )
 		) {
 			return null;
 		}
 
-		require_once __DIR__ . '/includes/RemoteResources.php';
+		require_once __DIR__ . '/includes/RemoteClient.php';
+		require_once __DIR__ . '/includes/ResourceContainer.php';
 
-		$urls     = wpo_ips_get_trusted_resource_urls( $this->document );
-		$hosts    = array_filter( array_map( static function ( string $url ): ?string {
-			return wp_parse_url( $url, PHP_URL_HOST ) ?: null;
-		}, $urls ) );
-		$settings = get_option( 'wpo_wcpdf_settings_debug', array() );
-		$hosts    = array_merge( $hosts, wpo_ips_normalize_remote_hosts( (string) ( $settings['allowed_remote_hosts'] ?? '' ) ) );
-		$hosts    = (array) apply_filters( 'wpo_ips_allowed_remote_hosts', $hosts, $this->document );
-		$ports    = wpo_ips_get_allowed_remote_ports( $this->document, $urls );
+		$urls  = wpo_ips_get_trusted_resource_urls( $this->document );
+		$hosts = wpo_ips_get_allowed_remote_hosts( $this->document, $urls );
+		$ports = wpo_ips_get_allowed_remote_ports( $this->document, $urls );
 
-		return new WCPDF_mPDF_Resource_Container( new WCPDF_mPDF_Remote_Client( $hosts, $ports ) );
+		return new ResourceContainer( new RemoteClient( $hosts, $ports ) );
 	}
-	
+
 	/**
 	 * Check if the current document requires hybrid format.
 	 *
 	 * @return bool
 	 */
 	private function is_hybrid_format(): bool {
+		if ( function_exists( 'wpo_ips_edi_is_hybrid_document' ) ) {
+			return wpo_ips_edi_is_hybrid_document( $this->document );
+		}
+
+		// Compatibility with core releases before the shared hybrid-format helper.
 		if ( ! function_exists( 'wpo_ips_edi_is_available' ) || ! wpo_ips_edi_is_available() ) {
 			return false;
 		}
@@ -259,45 +289,54 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 			! is_callable( array( $mpdf, 'SetAssociatedFiles' ) )  ||
 			! is_callable( array( $mpdf, 'SetAdditionalXmpRdf' ) )
 		) {
-			wc_get_logger()->error( 'Required functions or methods are not available for setting EDI files.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			wcpdf_log_error( 'Required functions or methods are not available for setting EDI files.', 'error', null, 'woocommerce-pdf-ips-mpdf' );
 			return false;
 		}
 
 		$mpdf->PDFAversion = '3-B'; // Set PDF/A version to 3-B
 
-		$format = wpo_ips_edi_get_current_format();
-		
-		if ( empty( $format ) || ! is_string( $format ) ) {
-			wc_get_logger()->error( 'EDI format is not available.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return false;
-		}
-		
-		$syntax = wpo_ips_edi_get_current_syntax();
-		
-		if ( empty( $syntax ) ) {
-			wc_get_logger()->error( 'EDI syntax is not available.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return false;
-		}
+		if ( function_exists( 'wpo_ips_edi_build_document' ) ) {
+			$data                = wpo_ips_edi_build_document( $this->document );
+			$content             = $data['contents'];
+			$edi_document        = $data['document'];
+			$edi_format_document = $edi_document->format_document;
+			$format              = $edi_document->format;
+		} else {
+			// Compatibility with core releases before the shared XML builder.
+			$format = wpo_ips_edi_get_current_format();
 
-		$edi_document = new EDI_Document( $syntax, $format, $this->document );
-		
-		$builder = new EDI_SabreBuilder();
-		$content = apply_filters(
-			'wpo_ips_edi_contents',
-			$builder->build( $edi_document ),
-			$edi_document,
-			$this->document
-		);
+			if ( empty( $format ) || ! is_string( $format ) ) {
+				wcpdf_log_error( 'EDI format is not available.', 'error', null, 'woocommerce-pdf-ips-mpdf' );
+				return false;
+			}
 
-		if ( ! is_string( $content ) || '' === trim( $content ) ) {
-			wc_get_logger()->error( 'EDI document content is empty or invalid.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return false;
+			$syntax = wpo_ips_edi_get_current_syntax();
+
+			if ( empty( $syntax ) ) {
+				wcpdf_log_error( 'EDI syntax is not available.', 'error', null, 'woocommerce-pdf-ips-mpdf' );
+				return false;
+			}
+
+			$edi_document = new EDI_Document( $syntax, $format, $this->document );
+
+			$builder = new EDI_SabreBuilder();
+			$content = apply_filters(
+				'wpo_ips_edi_contents',
+				$builder->build( $edi_document ),
+				$edi_document,
+				$this->document
+			);
+
+			if ( ! is_string( $content ) || '' === trim( $content ) ) {
+				wcpdf_log_error( 'EDI document content is empty or invalid.', 'error', null, 'woocommerce-pdf-ips-mpdf' );
+				return false;
+			}
+
+			$edi_format_document = $edi_document->get_format_document();
 		}
-		
-		$edi_format_document = $edi_document->get_format_document();
 
 		if ( ! $edi_format_document instanceof \WPO\IPS\EDI\Interfaces\HybridFormatInterface ) {
-			wc_get_logger()->error( 'EDI format document does not support hybrid PDF metadata.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			wcpdf_log_error( 'EDI format document does not support hybrid PDF metadata.', 'error', null, 'woocommerce-pdf-ips-mpdf' );
 			return false;
 		}
 		
@@ -423,7 +462,7 @@ function wpo_wcpdf_mpdf_modify_html( string $html, ?object $document ): string {
 	
 	// If CssSelector is not available, bail early to avoid exceptions.
 	if ( ! class_exists( \Symfony\Component\CssSelector\CssSelectorConverter::class ) ) {
-		wc_get_logger()->error( 'Symfony CssSelector component is not available.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+		wcpdf_log_error( 'Symfony CssSelector component is not available.', 'error', null, 'woocommerce-pdf-ips-mpdf' );
 		return $html;
 	}
 
@@ -536,7 +575,9 @@ add_action( 'wpo_wcpdf_custom_styles', 'wpo_wcpdf_mpdf_premium_style_overrides',
  * @return void
  */
 function wpo_wcpdf_mpdf_premium_style_overrides( string $document_type, ?object $document = null ): void {
-	$template_name = basename( WPO_WCPDF()->settings->get_template_path() );
+	$core          = WPO_WCPDF();
+	$settings      = is_callable( array( $core, 'get_instance' ) ) ? $core->get_instance( 'settings' ) : $core->settings;
+	$template_name = basename( $settings->get_template_path() );
 	$margins       = array(
 		'Simple'         => array( '0','20mm','20mm' ), // bottom, left, right
 		'Business'       => array( '10mm','10mm','10mm' ),
@@ -596,7 +637,7 @@ add_filter( 'wpo_wcpdf_html_content', 'wpo_wcpdf_mpdf_wrap_html_content', 10, 1 
  * @return string Wrapped document content.
  */
 function wpo_wcpdf_mpdf_wrap_html_content( string $content ): string {
-	$general_settings = get_option( 'wpo_wcpdf_settings_general' );
+	$general_settings = wpo_wcpdf_mpdf_get_settings( 'general' );
 	$classes          ='mpdf';
 
 	if ( ! empty( $general_settings['rtl_support'] ) ) {
@@ -606,4 +647,24 @@ function wpo_wcpdf_mpdf_wrap_html_content( string $content ): string {
 	$content = '<div class="'.$classes.'">'.$content.'</div>';
 
 	return $content;
+}
+
+/**
+ * Read core's loaded settings, retaining compatibility with older core releases.
+ *
+ * @param string $type Settings group: general or debug.
+ * @return array
+ * @throws \InvalidArgumentException When the settings group is unsupported.
+ */
+function wpo_wcpdf_mpdf_get_settings( string $type ): array {
+	if ( ! in_array( $type, array( 'general', 'debug' ), true ) ) {
+		throw new \InvalidArgumentException( 'Unknown mPDF settings group.' );
+	}
+	$core     = WPO_WCPDF();
+	$settings = is_callable( array( $core, 'get_instance' ) ) ? $core->get_instance( 'settings' ) : $core->settings;
+	if ( is_callable( array( $settings, 'get_settings' ) ) ) {
+		return $settings->get_settings( $type );
+	}
+	$value = $settings->{ $type . '_settings' } ?? get_option( 'wpo_wcpdf_settings_' . $type, array() );
+	return is_array( $value ) ? $value : array();
 }
