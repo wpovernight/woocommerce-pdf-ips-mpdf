@@ -1,16 +1,19 @@
 <?php
 /**
- * Plugin Name:      PDF Invoices & Packing Slips for WooCommerce - mPDF
- * Requires Plugins: woocommerce-pdf-invoices-packing-slips
- * Plugin URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
- * Description:      Utilizes the mPDF engine as an alternative for converting HTML to PDF.
- * Version:          3.2.0
- * Update URI:       https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
- * Author:           WP Overnight
- * Author URI:       https://www.wpovernight.com
- * License:          GPLv2 or later
- * License URI:      https://opensource.org/licenses/gpl-license.php
- * Text Domain:      woocommerce-pdf-ips-mpdf
+ * Plugin Name:          PDF Invoices & Packing Slips for WooCommerce - mPDF
+ * Requires Plugins:     woocommerce-pdf-invoices-packing-slips
+ * Plugin URI:           https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
+ * Description:          Utilizes the mPDF engine as an alternative for converting HTML to PDF.
+ * Version:              3.2.0
+ * Requires at least:    5.9
+ * Requires PHP:         8.1
+ * Update URI:           https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
+ * Author:               WP Overnight
+ * Author URI:           https://www.wpovernight.com
+ * License:              GPLv2 or later
+ * License URI:          https://opensource.org/licenses/gpl-license.php
+ * Text Domain:          woocommerce-pdf-ips-mpdf
+ * WC requires at least: 4.0
  */
 
 use Symfony\Component\DomCrawler\Crawler;
@@ -18,6 +21,10 @@ use WPO\IPS\Mpdf\Vendor\Mpdf\Mpdf;
 use WPO\IPS\Mpdf\Vendor\Mpdf\Output\Destination;
 use WPO\IPS\EDI\Document as EDI_Document;
 use WPO\IPS\EDI\SabreBuilder as EDI_SabreBuilder;
+use WPO\IPS\EDI\Interfaces\HybridFormatInterface;
+use WPO\IPS\Mpdf\RemoteClient;
+use WPO\IPS\Mpdf\ResourceContainer;
+use WPO\IPS\Vendor\Dompdf\Options;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -40,57 +47,26 @@ if ( class_exists( '\\WPO\\GitHubUpdater\\GitHubUpdater' ) ) {
 
 require $plugin_path . '/vendor/autoload.php';
 require $plugin_path . '/vendor/strauss/autoload.php';
+require_once $plugin_path . '/includes/RemoteClient.php';
+require_once $plugin_path . '/includes/ResourceContainer.php';
 
-/**
- * Compatibility base class.
- *
- * In PDF Invoices & Packing Slips v6, PDF makers must extend \WPO\IPS\Makers\PDFMaker.
- * Older versions do not have that class, so we keep a fallback base class with the
- * legacy constructor/properties.
- */
-if ( ! class_exists( 'WCPDF_Custom_PDF_Maker_mPDF_Base' ) ) {
-	if ( function_exists( 'WPO_WCPDF' ) && ! class_exists( '\\WPO\\IPS\\Makers\\PDFMaker' ) ) {
-		$pdf_maker_file = WPO_WCPDF()->plugin_path() . '/includes/Makers/PDFMaker.php';
+if ( class_exists( '\\WPO\\IPS\\Makers\\PDFMaker' ) && ! class_exists( 'WCPDF_Custom_PDF_Maker_mPDF' ) ) :
 
-		if ( file_exists( $pdf_maker_file ) ) {
-			include_once $pdf_maker_file;
-		}
-	}
-
-	if ( class_exists( '\\WPO\\IPS\\Makers\\PDFMaker' ) ) {
-		abstract class WCPDF_Custom_PDF_Maker_mPDF_Base extends \WPO\IPS\Makers\PDFMaker {}
-	} else {
-		abstract class WCPDF_Custom_PDF_Maker_mPDF_Base {
-
-			public string $html;
-			public array $settings;
-			public ?object $document;
-
-			public function __construct( string $html, array $settings = array(), ?object $document = null ) {
-				$this->html     = $html;
-				$this->document = $document;
-
-				$default_settings = array(
-					'paper_size'        => 'A4',
-					'paper_orientation' => 'portrait',
-				);
-
-				$this->settings = array_merge( $default_settings, $settings );
-			}
-		}
-	}
-}
-
-if ( ! class_exists( 'WCPDF_Custom_PDF_Maker_mPDF' ) ) :
-
-class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
+class WCPDF_Custom_PDF_Maker_mPDF extends \WPO\IPS\Makers\PDFMaker {
 
 	public bool $hybrid;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param string $html Document HTML.
+	 * @param array $settings PDF settings.
+	 * @param object|null $document Document instance.
+	 */
 	public function __construct( string $html, array $settings = array(), ?object $document = null ) {
 		parent::__construct( $html, $settings, $document );
 
-		$this->hybrid = $this->is_hybrid_format();
+		$this->hybrid = $this->is_hybrid_document();
 	}
 
 	/**
@@ -100,6 +76,13 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 	 */
 	public function output(): ?string {
 		if ( empty( $this->html ) ) {
+			return null;
+		}
+
+		$tmp_path = WPO_WCPDF()->get_instance( 'main' )->ensure_tmp_path( 'dompdf' );
+
+		if ( false === $tmp_path ) {
+			wcpdf_log_error( 'PDF temporary folder is not available.', 'critical' );
 			return null;
 		}
 
@@ -116,8 +99,8 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 			'mode'             => 'utf-8', 
 			'format'           => $this->settings['paper_size'],
 			'orientation'      => $orientation,
-			'tempDir'          => WPO_WCPDF()->main->get_tmp_path( 'dompdf' ),
-			'debug'            => true,
+			'tempDir'          => $tmp_path,
+			'debug'            => false,
 			'useSubstitutions' => file_exists( __DIR__ . '/vendor/mpdf/mpdf/ttfonts/FreeSans.ttf' ),
 		) );
 		
@@ -127,43 +110,31 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 
 		try {
 			error_clear_last();
-			$mpdf = new Mpdf( $options );
+			$resource_options = new Options( array( 'isRemoteEnabled' => true ) );
+			$this->restrict_remote_resources( $resource_options );
+
+			$container = new ResourceContainer( new RemoteClient( $resource_options ) );
+			$mpdf      = new Mpdf( $options, $container );
+			$container->set_mpdf( $mpdf );
+
 			$mpdf = apply_filters( 'wpo_wcpdf_before_mpdf_write', $mpdf, $this->html, $options, $this->document );
 			
 			if ( $this->hybrid ) {
 				$mpdf = $this->set_pdfa_file( $mpdf );
+
+				if ( null === $mpdf ) {
+					return null;
+				}
 			}
 			
 			$mpdf->WriteHTML( $this->html );
 			$mpdf = apply_filters( 'wpo_wcpdf_after_mpdf_write', $mpdf, $this->html, $options, $this->document );
 			
 			return $mpdf->Output( null, Destination::STRING_RETURN );
-		} catch ( \Exception $e ) {
-			wc_get_logger()->critical( $e->getMessage(), array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+		} catch ( \Throwable $e ) {
+			wcpdf_log_error( $e->getMessage(), 'critical', $e, 'woocommerce-pdf-ips-mpdf' );
 			return null;
 		}
-	}
-	
-	/**
-	 * Check if the current document requires hybrid format.
-	 *
-	 * @return bool
-	 */
-	private function is_hybrid_format(): bool {
-		$required = false;
-		
-		if ( function_exists( 'wpo_ips_edi_is_available' ) && wpo_ips_edi_is_available() ) {
-			$format         = wpo_ips_edi_get_current_format( true );
-			$hybrid         = is_array( $format ) && true === $format['hybrid'];
-			$document_types = is_array( $format['documents'] ) ? array_keys( $format['documents'] ) : array();
-			$document_type  = $this->document && is_callable( array( $this->document, 'get_type' ) ) ? $this->document->get_type() : '';
-			
-			if ( $hybrid && in_array( $document_type, $document_types, true ) ) {
-				$required = true;
-			}
-		}
-		
-		return $required;
 	}
 	
 	/**
@@ -182,9 +153,9 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 	 * Set PDF/A file in mPDF.
 	 *
 	 * @param Mpdf $mpdf
-	 * @return Mpdf
+	 * @return Mpdf|null
 	 */
-	private function set_pdfa_file( Mpdf $mpdf ) {
+	private function set_pdfa_file( Mpdf $mpdf ): ?Mpdf {
 		if (
 			! function_exists( 'wpo_ips_edi_get_current_format' )  ||
 			! function_exists( 'wpo_ips_edi_get_current_syntax' )  ||
@@ -194,45 +165,50 @@ class WCPDF_Custom_PDF_Maker_mPDF extends WCPDF_Custom_PDF_Maker_mPDF_Base {
 			! is_callable( array( $mpdf, 'SetAdditionalXmpRdf' ) )
 		) {
 			wc_get_logger()->error( 'Required functions or methods are not available for setting EDI files.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return $mpdf;
+			return null;
 		}
 
 		$mpdf->PDFAversion = '3-B'; // Set PDF/A version to 3-B
 
 		$format = wpo_ips_edi_get_current_format();
 		
-		if ( empty( $format ) ) {
+		if ( empty( $format ) || ! is_string( $format ) ) {
 			wc_get_logger()->error( 'EDI format is not available.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return $mpdf;
+			return null;
 		}
 		
 		$syntax = wpo_ips_edi_get_current_syntax();
 		
 		if ( empty( $syntax ) ) {
 			wc_get_logger()->error( 'EDI syntax is not available.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return $mpdf;
+			return null;
 		}
 
 		$edi_document = new EDI_Document( $syntax, $format, $this->document );
 		
 		if ( ! $edi_document ) {
 			wc_get_logger()->error( 'EDI document could not be created.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return $mpdf;
+			return null;
 		}
 
-		$builder  = new EDI_SabreBuilder();
-		$content  = $builder->build( $edi_document );
+		$builder = new EDI_SabreBuilder();
+		$content = apply_filters(
+			'wpo_ips_edi_contents',
+			$builder->build( $edi_document ),
+			$edi_document,
+			$this->document
+		);
 
 		if ( empty( $content ) ) {
 			wc_get_logger()->error( 'EDI document content is empty.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return $mpdf;
+			return null;
 		}
 		
 		$edi_format_document = $edi_document->get_format_document();
 
-		if ( ! $edi_format_document ) {
-			wc_get_logger()->error( 'EDI format document could not be created.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
-			return $mpdf;
+		if ( ! $edi_format_document instanceof HybridFormatInterface ) {
+			wc_get_logger()->error( 'EDI format document does not support hybrid PDF metadata.', array( 'source' => 'woocommerce-pdf-ips-mpdf' ) );
+			return null;
 		}
 		
 		$mpdf->SetAssociatedFiles( array( array(
@@ -270,12 +246,14 @@ add_action( 'admin_init', 'wpo_wcpdf_mpdf_check_dependencies' );
 function wpo_wcpdf_mpdf_check_dependencies(): bool {
 	$activated_plugins       = array_merge( get_option( 'active_plugins', array() ), get_site_option( 'active_sitewide_plugins', array() ) );
 	$core_plugin_slug        = 'woocommerce-pdf-invoices-packing-slips/woocommerce-pdf-invoices-packingslips.php';
-	$core_plugin_min_version = '3.8.7';
+	$core_plugin_min_version = '6.0.0';
 
 	if (
 		! ( in_array( $core_plugin_slug, $activated_plugins ) || array_key_exists( $core_plugin_slug, $activated_plugins ) ) ||
 		! defined( 'WPO_WCPDF_VERSION' ) ||
-		version_compare( WPO_WCPDF_VERSION, $core_plugin_min_version, '<' )
+		// Accept V6 prereleases only when the required core helper is available.
+		version_compare( strtok( WPO_WCPDF_VERSION, '-' ), $core_plugin_min_version, '<' ) ||
+		! method_exists( 'WCPDF_Custom_PDF_Maker_mPDF', 'is_hybrid_document' )
 	) {
 		add_action( 'admin_notices', 'wpo_wcpdf_mpdf_notice_core_plugin_requirement' );
 		return false;
@@ -289,7 +267,7 @@ function wpo_wcpdf_mpdf_notice_core_plugin_requirement(): void {
 		/* translators: 1. Plugin name, 2: Core plugin version, 3: Core plugin name */
 		__( '%1$s requires at least version %2$s of %3$s to be installed and activated.', 'woocommerce-pdf-ips-mpdf' ),
 		'<strong>PDF Invoices & Packing Slips for WooCommerce - mPDF</strong>',
-		'<strong>3.8.7</strong>',
+		'<strong>6.0.0</strong>',
 		'<a href="https://wordpress.org/plugins/woocommerce-pdf-invoices-packing-slips/">PDF Invoices & Packing Slips for WooCommerce</a>'
 	);
 
@@ -314,7 +292,14 @@ function wpo_wcpdf_mpdf_set_logo_height( $img_element, $attachment, $document ) 
 }
 
 add_filter( 'wpo_wcpdf_get_html', 'wpo_wcpdf_mpdf_modify_html', 10, 2 );
-function wpo_wcpdf_mpdf_modify_html( $html, $document ) {	
+/**
+ * Adapt document HTML for mPDF while preserving text content.
+ *
+ * @param string $html Document HTML.
+ * @param object $document Document instance.
+ * @return string
+ */
+function wpo_wcpdf_mpdf_modify_html( string $html, object $document ): string {
 	if ( ! class_exists( 'DOMDocument' ) ) {
 		return $html;
 	}
@@ -349,7 +334,8 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 	// replace strong tags with span tags and add class 'label'
 	$crawler->filter( '.wc-item-meta strong' )->each( function ( Crawler $crawler, $i ) {
 		foreach ( $crawler as $strong ) {
-			$span = $strong->ownerDocument->createElement( 'span', $strong->nodeValue );
+			$span = $strong->ownerDocument->createElement( 'span' );
+			$span->appendChild( $strong->ownerDocument->createTextNode( $strong->textContent ) );
 			$span->setAttribute( 'class', 'label' );
 			$strong->parentNode->replaceChild( $span, $strong );
 		}
@@ -378,7 +364,8 @@ function wpo_wcpdf_mpdf_modify_html( $html, $document ) {
 					foreach ( $li->childNodes as $child ) {
 						// Replace <strong> with <span class="label">
 						if ( $child->nodeType === XML_ELEMENT_NODE && 'strong' === strtolower( $child->nodeName ) ) {
-							$span = $ul->ownerDocument->createElement( 'span', $child->textContent );
+							$span = $ul->ownerDocument->createElement( 'span' );
+							$span->appendChild( $ul->ownerDocument->createTextNode( $child->textContent ) );
 							$span->setAttribute( 'class', 'label' );
 							$p->appendChild( $span );
 						}
