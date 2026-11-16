@@ -1,5 +1,15 @@
 # Changelog
 
+### v3.3.0
+
+- New: Raised minimum requirements to PHP 8.1, WordPress 5.9, WooCommerce 4.0 and PDF Invoices & Packing Slips 6.0.0.
+- New: Apply the `wpo_ips_edi_contents` filter to XML embedded in hybrid PDFs.
+- Tweak: Use core v6 hybrid document detection and remote resource restrictions.
+- Fix: Stop hybrid PDF generation when required XML content or metadata is unavailable.
+- Fix: Ensure the PDF temporary folder is available before rendering.
+- Fix: Catch and log rendering errors alongside exceptions.
+- Fix: Preserve special characters in item metadata labels.
+
 ### v3.2.0
 
 - New: Added core v6 compatibility for the mPDF maker.

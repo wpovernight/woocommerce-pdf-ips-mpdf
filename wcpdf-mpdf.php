@@ -4,7 +4,7 @@
  * Requires Plugins:     woocommerce-pdf-invoices-packing-slips
  * Plugin URI:           https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
  * Description:          Utilizes the mPDF engine as an alternative for converting HTML to PDF.
- * Version:              3.2.0
+ * Version:              3.3.0
  * Requires at least:    5.9
  * Requires PHP:         8.1
  * Update URI:           https://github.com/wpovernight/woocommerce-pdf-ips-mpdf
